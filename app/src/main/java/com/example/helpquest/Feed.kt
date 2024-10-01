@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 
-// Modelo de datos para la tarjeta
+// Datos para la tarjeta
 data class VolunteerActivity(
     val imageResId: Int,
     val labels: List<Pair<String, Color>>,
@@ -125,8 +125,8 @@ fun PreviewCustomCardList() {
             imageResId = R.drawable.img_uvg,
             labels = listOf("💪 Deporte" to Color(0xFF4CAF50)),
             time = "⏰ 1h - 3h",
-            title = "Evento Deportivo Solidario",
-            description = "Participa en la organización de un evento deportivo para recaudar fondos destinados a causas sociales."
+            title = "Carrera UVG",
+            description = "¡Ya comenzamos las inscripciones para la próxima edición de la Carrera UVG!  Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG)."
         )
     )
 
