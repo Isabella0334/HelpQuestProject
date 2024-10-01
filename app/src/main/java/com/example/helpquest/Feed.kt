@@ -126,7 +126,7 @@ fun PreviewCustomCardList() {
             labels = listOf("💪 Deporte" to Color(0xFF4CAF50)),
             time = "⏰ 1h - 3h",
             title = "Carrera UVG",
-            description = "¡Ya comenzamos las inscripciones para la próxima edición de la Carrera UVG!  Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG)."
+            description = "¡Ya comenzamos las inscripciones para la Carrera UVG!  Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG)."
         )
     )
 
