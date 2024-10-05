@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,35 +36,56 @@ fun ExploreScreen() {
     Scaffold(
         bottomBar = { BottomNavigationBar() }
     ) { paddingValues ->
-        Box(
+
+
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Color(0xFFF5F5DC))
                 .padding(16.dp),
-            contentAlignment = Alignment.BottomCenter
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
 
             Icon(
-                imageVector = Icons.Filled.ArrowBack,
+                imageVector = Icons.Filled.ArrowBack, // regresar
                 contentDescription = "Regresar",
                 modifier = Modifier
-                    .align(Alignment.TopStart)
+                    .align(Alignment.Start)
                     .padding(16.dp)
             )
 
-
-            // esperando para poder insertar mapa
-
+            // Tarjeta en espera de build map
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(8.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White),
-                            modifier = Modifier
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Building MAP",
+                    textAlign = TextAlign.Center ,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+
+            // mapsfunction()
+
+            // Contenedor de info
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White),
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-
             ) {
                 Column(
                     modifier = Modifier
@@ -118,6 +140,7 @@ fun BottomNavigationBar() {
         ) {
             TextButton(onClick = { /*  Explore */ },
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
+
                 Icon(
                     imageVector = Icons.Filled.LocationOn,
                     contentDescription = "Explore",
@@ -137,6 +160,7 @@ fun BottomNavigationBar() {
             TextButton(onClick = { /* Updates */ },
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
                 Column {
+
                     Icon(
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = "Updates",
@@ -150,6 +174,12 @@ fun BottomNavigationBar() {
         }
     }
 }
+
+// en construcción para el mapa real
+/*
+@Composable
+fun mapsfunction() {
+}*/
 
 @Preview(showBackground = true)
 @Composable
