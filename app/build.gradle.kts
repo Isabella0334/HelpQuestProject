@@ -66,4 +66,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //  implementation 'com.google.android.gms:play-services-maps:18.1.0' // SDK DE GOOGLEMAPS
+    //    implementation 'com.google.maps.android:maps-compose:2.11.2'     // JETPACK PARA IMPLEMENTAR
 }

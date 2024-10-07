@@ -10,4 +10,5 @@
     <string name="terms_checkbox_text">I accept the terms</string>
     <string name="send_button_text">Send my application</string>
     <string name="terms_and_conditions">Read our T&amp;Cs</string>
+
 </resources>
