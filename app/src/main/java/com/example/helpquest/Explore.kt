@@ -21,20 +21,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
 class Explore : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ExploreScreen()
+            val navController = rememberNavController() // conflictos con métodos y parámetro
+            ExploreScreen(navController)
         }
     }
 }
 
 @Composable
-fun ExploreScreen() {
+fun ExploreScreen(navController: NavHostController) {
     Scaffold(
-        bottomBar = { BottomNavigationBar() }
+        bottomBar = { BottomNavigationBar(navController) }
     ) { paddingValues ->
 
 
@@ -129,7 +134,7 @@ fun ExploreScreen() {
 }
 
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(navController: NavHostController) {
     BottomAppBar(
         containerColor = Color(0xFF90EE90),
 
@@ -138,7 +143,7 @@ fun BottomNavigationBar() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            TextButton(onClick = { /*  Explore */ },
+            TextButton(onClick = { navController.navigate("explore")}, // seteado
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
 
                 Icon(
@@ -148,7 +153,7 @@ fun BottomNavigationBar() {
                 )
                 Text("Explore")
             }
-            TextButton(onClick = { /* Profile */ },
+            TextButton(onClick = { navController.navigate("perfil") }, // seteado
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
                 Icon(
                     imageVector = Icons.Filled.Person,
@@ -157,7 +162,7 @@ fun BottomNavigationBar() {
                 )
                 Text("Profile")
             }
-            TextButton(onClick = { /* Updates */ },
+            TextButton(onClick = { navController.navigate("Settings")}, // seteado
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
                 Column {
 
@@ -184,5 +189,9 @@ fun mapsfunction() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewExploreScreen() {
-    ExploreScreen()
+
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = "explore") {
+        composable("explore") { ExploreScreen(navController) }
+    }
 }

@@ -65,7 +65,7 @@ fun helpQuestNavegation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "principal",
+            startDestination = "explore", // cambié el nombre solo para pruebas
             modifier = Modifier.padding(innerPadding)
         ){
             composable(route = "principal"){
@@ -80,6 +80,9 @@ fun helpQuestNavegation(
             }
             composable (route = "emergencia"){
                 //emergencyGreed()
+            }
+            composable (route = "explore"){
+                ExploreScreen(navController = navController)
             }
         }
     }
