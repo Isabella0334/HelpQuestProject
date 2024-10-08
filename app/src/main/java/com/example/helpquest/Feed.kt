@@ -3,9 +3,12 @@ package com.example.helpquest
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -111,7 +114,8 @@ fun LabelChip(label: String, color: Color) {
 }
 
 @Composable
-fun FeedScreen( navController: NavHostController) {
+fun FeedScreen(navController: NavHostController) {
+
     val activities = listOf(
         VolunteerActivity(
             imageResId = R.drawable.img_playa,
@@ -130,9 +134,13 @@ fun FeedScreen( navController: NavHostController) {
     )
 
     // Mostramos la lista de actividades en el feed
-    Column(modifier = Modifier.background(Color(0xFFF8EFE8))) {
+    Column(
+        modifier = Modifier
+            .background(Color(0xFFF8EFE8))
+            .verticalScroll(rememberScrollState())
+    ) {
         activities.forEach { activity ->
-            CustomCard(activity = activity, navController = navController)  // Asegúrate de pasar navController
+            CustomCard(activity = activity, navController = navController)
         }
     }
 }
