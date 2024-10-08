@@ -63,11 +63,8 @@ fun helpQuestNavegation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-<<<<<<< HEAD
+
             startDestination = "login",
-=======
-            startDestination = "explore", // cambié el nombre solo para pruebas
->>>>>>> 19747ae82a5ff094ad999cbda38d7c5ae3b00996
             modifier = Modifier.padding(innerPadding)
         ){
             composable(route = "login"){
