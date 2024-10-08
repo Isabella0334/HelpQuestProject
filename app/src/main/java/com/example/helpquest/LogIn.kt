@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
+import com.example.helpquest.R
 
 @Composable
 fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController) {
@@ -33,7 +35,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
     ) {
 
         Text(
-            text = "Email",
+            text = stringResource(id = R.string.email_label),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -45,7 +47,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text(text = "Email") },
+            label = { Text(text = stringResource(id = R.string.email_label)) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -53,7 +55,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
         )
 
         Text(
-            text = "Password",
+            text = stringResource(id = R.string.password_label),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -66,7 +68,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text(text = "Password") },
+            label = { Text(text = stringResource(id = R.string.password_label)) },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -85,7 +87,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
                 .height(40.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text(text = "Log in", color = Color.White, fontSize = 18.sp)
+            Text(text = stringResource(id = R.string.login_button_text), color = Color.White, fontSize = 18.sp)
         }
 
         // Register Button
@@ -98,7 +100,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
                 .height(40.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text(text = "Register", color = Color.White, fontSize = 18.sp)
+            Text(text = stringResource(id = R.string.register_button_text), color = Color.White, fontSize = 18.sp)
         }
     }
 }
