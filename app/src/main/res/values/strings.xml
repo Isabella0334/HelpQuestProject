@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">HelpQuest</string>
+
+    //Strings para pantalla Formulario.kt
+    <string name="form_title">Application Form</string>
+    <string name="form_description">Necessary information for your application</string>
+    <string name="full_name_label">Full name</string>
+    <string name="age_label">Age</string>
+    <string name="identity_document_label">Identity document</string>
+    <string name="terms_checkbox_text">I accept the terms</string>
+    <string name="send_button_text">Send my application</string>
+    <string name="terms_and_conditions">Read our T&amp;Cs</string>
+
 </resources>
