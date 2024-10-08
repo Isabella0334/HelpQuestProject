@@ -22,4 +22,19 @@
     <string name="prox_actividad1">Actividad 1</string>
     <string name="prox_actividad2">Actividad 2</string>
 
+    // Strings pantalla de Explore.kt
+        <string name="back">Back</string>
+        <string name="building_map">Building MAP</string>
+        <string name="title">Title</string>
+        <string name="body_text">Body text for whatever you\'d like to say. Add main takeaway points, quotes, anecdotes, or even a very very short story.</string>
+        <string name="more_info">More info</string>
+        <string name="apply">Apply</string>
+        <string name="explore">Explore</string>
+        <string name="profile">Profile</string>
+        <string name="updates">Updates</string>
+
+
+
+
+
 </resources>

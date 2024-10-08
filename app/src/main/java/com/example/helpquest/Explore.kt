@@ -6,7 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
@@ -17,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,23 +34,16 @@ fun ExploreScreen(navController: NavHostController) {
         bottomBar = { BottomNavigationBar(navController = navController) }
     ) { paddingValues ->
 
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Color(0xFFF5F5DC))
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
-            Icon(
-                imageVector = Icons.Filled.ArrowBack, // regresar
-                contentDescription = "Regresar",
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(16.dp)
-            )
 
             // Tarjeta en espera de build map
             Card(
@@ -61,8 +57,8 @@ fun ExploreScreen(navController: NavHostController) {
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Building MAP",
-                    textAlign = TextAlign.Center ,
+                    text = stringResource(id = R.string.building_map),
+                    textAlign = TextAlign.Center,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(16.dp)
@@ -86,14 +82,14 @@ fun ExploreScreen(navController: NavHostController) {
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Title",
+                        text = stringResource(id = R.string.title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
                     Text(
-                        text = "Body text for whatever you'd like to say. Add main takeaway points, quotes, anecdotes, or even a very very short story.",
+                        text = stringResource(id = R.string.body_text),
                         fontSize = 16.sp,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
@@ -106,14 +102,14 @@ fun ExploreScreen(navController: NavHostController) {
                             onClick = { /*  More info */ },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34C85A))
                         ) {
-                            Text("More info", color = Color.White)
+                            Text(stringResource(id = R.string.more_info), color = Color.White)
                         }
 
                         Button(
                             onClick = { /*  Apply */ },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500))
                         ) {
-                            Text("Apply", color = Color.White)
+                            Text(stringResource(id = R.string.apply), color = Color.White)
                         }
                     }
                 }
@@ -127,7 +123,7 @@ fun BottomNavigationBar(navController: NavHostController) {
     BottomAppBar(
         containerColor = Color(0xFF90EE90),
 
-    ) {
+        ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -137,20 +133,20 @@ fun BottomNavigationBar(navController: NavHostController) {
 
                 Icon(
                     imageVector = Icons.Filled.LocationOn,
-                    contentDescription = "Explore",
+                    contentDescription = stringResource(id = R.string.explore),
                     modifier = Modifier.size(24.dp)
                 )
-                Text("Explore")
+                Text(stringResource(id = R.string.explore))
             }
             TextButton(onClick = { /* Profile */ },
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
                 Icon(
                     imageVector = Icons.Filled.Person,
-                    contentDescription = "Profile",
+                    contentDescription = stringResource(id = R.string.profile),
                     modifier = Modifier.size(24.dp)
-                        .clickable { navController.navigate ("Perfil") }
+                        .clickable { navController.navigate("Perfil") }
                 )
-                Text("Profile")
+                Text(stringResource(id = R.string.profile))
             }
             TextButton(onClick = { /* Updates */ },
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
@@ -158,13 +154,13 @@ fun BottomNavigationBar(navController: NavHostController) {
 
                     Icon(
                         imageVector = Icons.Filled.Notifications,
-                        contentDescription = "Updates",
+                        contentDescription = stringResource(id = R.string.updates),
                         modifier = Modifier.size(24.dp)
                     )
 
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Updates")
+                Text(stringResource(id = R.string.updates))
             }
         }
     }
@@ -175,4 +171,3 @@ fun BottomNavigationBar(navController: NavHostController) {
 @Composable
 fun mapsfunction() {
 }*/
-

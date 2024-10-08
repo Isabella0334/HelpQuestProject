@@ -63,6 +63,7 @@ fun helpQuestNavegation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
+
             startDestination = "login",
             modifier = Modifier.padding(innerPadding)
         ){
@@ -83,6 +84,9 @@ fun helpQuestNavegation(
             }
             composable (route = "Perfil"){
                 PantallaPerfil(navController = navController)
+            }
+            composable (route = "explore"){
+                ExploreScreen(navController = navController)
             }
         }
     }
