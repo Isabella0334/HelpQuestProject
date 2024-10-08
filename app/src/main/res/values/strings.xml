@@ -33,7 +33,11 @@
         <string name="profile">Profile</string>
         <string name="updates">Updates</string>
 
-
+    // Strings pantalla LogIn.kt
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="login_button_text">Log in</string>
+    <string name="register_button_text">Register</string>
 
 
 
