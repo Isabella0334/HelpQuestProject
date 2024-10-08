@@ -79,7 +79,10 @@ fun helpQuestNavegation(
                 FormularioScreen(navController = navController)
             }
             composable (route = "Explore"){
-                PreviewExploreScreen(navController = navController)
+                ExploreScreen(navController = navController)
+            }
+            composable (route = "Perfil"){
+                PantallaPerfil(navController = navController)
             }
         }
     }

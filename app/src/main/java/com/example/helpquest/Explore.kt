@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,19 +24,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 
-class Explore : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            ExploreScreen()
-        }
-    }
-}
 
 @Composable
-fun ExploreScreen() {
+fun ExploreScreen(navController: NavHostController) {
     Scaffold(
-        bottomBar = { BottomNavigationBar() }
+        bottomBar = { BottomNavigationBar(navController = navController) }
     ) { paddingValues ->
 
 
@@ -130,7 +123,7 @@ fun ExploreScreen() {
 }
 
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(navController: NavHostController) {
     BottomAppBar(
         containerColor = Color(0xFF90EE90),
 
@@ -155,6 +148,7 @@ fun BottomNavigationBar() {
                     imageVector = Icons.Filled.Person,
                     contentDescription = "Profile",
                     modifier = Modifier.size(24.dp)
+                        .clickable { navController.navigate ("Perfil") }
                 )
                 Text("Profile")
             }
@@ -182,7 +176,3 @@ fun BottomNavigationBar() {
 fun mapsfunction() {
 }*/
 
-@Composable
-fun PreviewExploreScreen(navController: NavHostController) {
-    ExploreScreen()
-}
