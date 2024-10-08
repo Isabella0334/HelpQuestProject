@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -15,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 
 // Datos para la tarjeta
 data class VolunteerActivity(
@@ -26,7 +26,7 @@ data class VolunteerActivity(
 )
 
 @Composable
-fun CustomCard(activity: VolunteerActivity) {
+fun CustomCard(activity: VolunteerActivity, navController: NavHostController) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -78,13 +78,13 @@ fun CustomCard(activity: VolunteerActivity) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { /* Acción para Más info */ },
+                    onClick = { navController.navigate("Info") },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                 ) {
                     Text(text = "Más información")
                 }
                 Button(
-                    onClick = { /* Acción para Aplicar */ },
+                    onClick = { navController.navigate("Formulario") },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))
                 ) {
                     Text(text = "Aplicar")
@@ -110,9 +110,8 @@ fun LabelChip(label: String, color: Color) {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun PreviewCustomCardList() {
+fun FeedScreen( navController: NavHostController) {
     val activities = listOf(
         VolunteerActivity(
             imageResId = R.drawable.img_playa,
@@ -126,13 +125,14 @@ fun PreviewCustomCardList() {
             labels = listOf("💪 Deporte" to Color(0xFF4CAF50)),
             time = "⏰ 1h - 3h",
             title = "Carrera UVG",
-            description = "¡Ya comenzamos las inscripciones para la Carrera UVG!  Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG)."
+            description = "¡Ya comenzamos las inscripciones para la Carrera UVG! Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG)."
         )
     )
 
+    // Mostramos la lista de actividades en el feed
     Column(modifier = Modifier.background(Color(0xFFF8EFE8))) {
         activities.forEach { activity ->
-            CustomCard(activity = activity)
+            CustomCard(activity = activity, navController = navController)  // Asegúrate de pasar navController
         }
     }
 }

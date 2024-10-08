@@ -77,7 +77,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
 
         // Log in Button
         Button(
-            onClick = {},
+            onClick = { navController.navigate("feed") },
             colors = ButtonDefaults.buttonColors(Color(0xFFFFA500)),
             modifier = Modifier
                 .padding(vertical = 8.dp)

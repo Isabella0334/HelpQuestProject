@@ -51,13 +51,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
+import androidx.navigation.NavHostController
 
 
 // Esta es la función del formulario que se verá dentro de la aplicación
-
 @Composable
-fun FormularioDeAplicacion(modifier: Modifier = Modifier) {
+fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostController) {
     Card(
         modifier = modifier
             .padding(16.dp)

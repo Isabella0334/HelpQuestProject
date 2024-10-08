@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -20,7 +19,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -51,7 +49,7 @@ fun helpQuestNavegation(
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
-    val currentScreen = backStackEntry?.destination?.route ?: "screen1"
+    val currentScreen = backStackEntry?.destination?.route ?: "login"
 
     Scaffold(
         topBar = {
@@ -65,21 +63,23 @@ fun helpQuestNavegation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "principal",
+            startDestination = "login",
             modifier = Modifier.padding(innerPadding)
         ){
-            composable(route = "principal"){
+            composable(route = "login"){
                 LoginScreen(navController = navController)
             }
-            composable(route = "perfil") {
-             //   profileSection(navController = navController)
+            composable(route = "feed") {
+                FeedScreen(navController = navController)
             }
-
-            composable(route = "Settings") {
-               // settingsView(navController = navController)
+            composable(route = "Info") {
+                InfoScreen(navController = navController)
             }
-            composable (route = "emergencia"){
-                //emergencyGreed()
+            composable (route = "Formulario"){
+                FormularioScreen(navController = navController)
+            }
+            composable (route = "Explore"){
+                PreviewExploreScreen(navController = navController)
             }
         }
     }
