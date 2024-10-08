@@ -24,12 +24,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+<<<<<<< HEAD
 
+=======
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+
+class Explore : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            val navController = rememberNavController() // conflictos con métodos y parámetro
+            ExploreScreen(navController)
+        }
+    }
+}
+>>>>>>> 19747ae82a5ff094ad999cbda38d7c5ae3b00996
 
 @Composable
 fun ExploreScreen(navController: NavHostController) {
     Scaffold(
+<<<<<<< HEAD
         bottomBar = { BottomNavigationBar(navController = navController) }
+=======
+        bottomBar = { BottomNavigationBar(navController) }
+>>>>>>> 19747ae82a5ff094ad999cbda38d7c5ae3b00996
     ) { paddingValues ->
 
 
@@ -133,7 +153,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            TextButton(onClick = { /*  Explore */ },
+            TextButton(onClick = { navController.navigate("explore")}, // seteado
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
 
                 Icon(
@@ -144,7 +164,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                 Text("Explore")
 
             }
-            TextButton(onClick = { /* Profile */ },
+            TextButton(onClick = { navController.navigate("perfil") }, // seteado
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
                 Icon(
                     imageVector = Icons.Filled.Person,
@@ -154,7 +174,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                 )
                 Text("Profile")
             }
-            TextButton(onClick = { /* Updates */ },
+            TextButton(onClick = { navController.navigate("Settings")}, // seteado
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
                 Column {
 
@@ -178,3 +198,15 @@ fun BottomNavigationBar(navController: NavHostController) {
 fun mapsfunction() {
 }*/
 
+<<<<<<< HEAD
+=======
+@Preview(showBackground = true)
+@Composable
+fun PreviewExploreScreen() {
+
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = "explore") {
+        composable("explore") { ExploreScreen(navController) }
+    }
+}
+>>>>>>> 19747ae82a5ff094ad999cbda38d7c5ae3b00996
