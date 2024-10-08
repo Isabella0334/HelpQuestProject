@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,13 +42,13 @@ fun ExploreScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
-            Icon(
+            /*Icon(
                 imageVector = Icons.Filled.ArrowBack, // regresar
                 contentDescription = "Regresar",
                 modifier = Modifier
                     .align(Alignment.Start)
                     .padding(16.dp)
-            )
+            )*/ // testeando appbar
 
             // Tarjeta en espera de build map
             Card(
@@ -61,7 +62,7 @@ fun ExploreScreen(navController: NavHostController) {
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Building MAP",
+                    text = stringResource(id = R.string.exploretitle),
                     textAlign = TextAlign.Center ,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -141,6 +142,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     modifier = Modifier.size(24.dp)
                 )
                 Text("Explore")
+
             }
             TextButton(onClick = { /* Profile */ },
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
