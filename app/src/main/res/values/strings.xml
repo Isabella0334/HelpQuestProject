@@ -39,6 +39,19 @@
     <string name="login_button_text">Log in</string>
     <string name="register_button_text">Register</string>
 
+    //String pantalla Feed.kt
+    <string name="image_activity">Imagen de la actividad</string>
+    <string name="more_info">Más información</string>
+    <string name="apply">Aplicar</string>
+    <string name="community">❤ Comunidad</string>
+    <string name="environment">🌿 Medio Ambiente</string>
+    <string name="beach_clean_up">Limpieza de Playa</string>
+    <string name="beach_clean_up_desc">Ayuda a limpiar las playas de la ciudad. Necesitamos voluntarios comprometidos con el medio ambiente.</string>
+    <string name="beach_clean_up_time">⏰ 2h - 1 Día</string>
+    <string name="sports">💪 Deporte</string>
+    <string name="uvg_race">Carrera UVG</string>
+    <string name="uvg_race_desc">¡Ya comenzamos las inscripciones para la Carrera UVG! Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG).</string>
+    <string name="uvg_race_time">⏰ 1h - 3h</string>
 
 
 </resources>
