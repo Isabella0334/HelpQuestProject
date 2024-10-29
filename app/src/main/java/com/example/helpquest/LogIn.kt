@@ -49,10 +49,12 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
             onValueChange = { email = it },
             label = { Text(text = stringResource(id = R.string.email_label)) },
             singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
         )
+
 
         Text(
             text = stringResource(id = R.string.password_label),
