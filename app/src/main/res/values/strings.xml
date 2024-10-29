@@ -41,8 +41,8 @@
 
     //String pantalla Feed.kt
     <string name="image_activity">Imagen de la actividad</string>
-    <string name="more_info">Más información</string>
-    <string name="apply">Aplicar</string>
+    <string name="more_info2">Más información</string>
+    <string name="apply2">Aplicar</string>
     <string name="community">❤ Comunidad</string>
     <string name="environment">🌿 Medio Ambiente</string>
     <string name="beach_clean_up">Limpieza de Playa</string>
