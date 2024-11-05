@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "714877601532",
+    "project_id": "helpquestproject",
+    "storage_bucket": "helpquestproject.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714877601532:android:0f3c9517353e41a8f1f979",
+        "android_client_info": {
+          "package_name": "com.example.helpquest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdR0S3wfLtBhCZcmL2tifdJ2EnQDyTihY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
