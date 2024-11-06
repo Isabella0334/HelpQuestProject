@@ -25,36 +25,28 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.helpquest.ui.theme.HelpQuestTheme
-import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
-    // Declaramos mAuth como propiedad de la clase
-    private lateinit var mAuth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // Inicializa FirebaseAuth
-        mAuth = FirebaseAuth.getInstance()
         setContent {
             HelpQuestTheme {
-                helpQuestNavegation(mAuth)
+                helpQuestNavegation()
             }
         }
     }
 }
 
-//El scaffold define la plantilla de la aplicación está acá
+// La función que maneja la navegación en la aplicación
 @OptIn(ExperimentalMaterial3Api::class)
-//@Preview
 @Composable
 fun helpQuestNavegation(
-    mAuth: FirebaseAuth,  // Recibe mAuth desde MainActivity
-    navController: NavHostController = rememberNavController(),
-    modifier: Modifier = Modifier
-    ) {
-    // Get current back stack entry
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
+) {
+    // Obtener el nombre de la pantalla actual para manejar la barra de navegación
     val backStackEntry by navController.currentBackStackEntryAsState()
-    // Get the name of the current screen
     val currentScreen = backStackEntry?.destination?.route ?: "login"
 
     Scaffold(
@@ -69,35 +61,32 @@ fun helpQuestNavegation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-
-            startDestination = "login",
+            startDestination = "login",  // Pantalla inicial, la de login
             modifier = Modifier.padding(innerPadding)
-        ){
-            composable(route = "login"){
-                LoginScreen(navController = navController)
+        ) {
+            composable(route = "login") {
+                LoginScreen(navController = navController)  // Pantalla de login
             }
             composable(route = "feed") {
-                FeedScreen(navController = navController)
+                FeedScreen(navController = navController)  // Pantalla de feed
             }
             composable(route = "Info") {
                 InfoScreen(navController = navController)
             }
-            composable (route = "Formulario"){
+            composable(route = "Formulario") {
                 FormularioScreen(navController = navController)
             }
-            composable (route = "Explore"){
+            composable(route = "Explore") {
                 ExploreScreen(navController = navController)
             }
-            composable (route = "Perfil"){
+            composable(route = "Perfil") {
                 PantallaPerfil(navController = navController)
-            }
-            composable (route = "explore"){
-                ExploreScreen(navController = navController)
             }
         }
     }
 }
 
+// Barra de navegación superior
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(title: String, canNavigateBack: Boolean, navigateUp: () -> Unit = {}, modifier: Modifier = Modifier) {
