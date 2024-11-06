@@ -25,14 +25,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.helpquest.ui.theme.HelpQuestTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
+    // Declaramos mAuth como propiedad de la clase
+    private lateinit var mAuth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Inicializa FirebaseAuth
+        mAuth = FirebaseAuth.getInstance()
         setContent {
             HelpQuestTheme {
-                helpQuestNavegation()
+                helpQuestNavegation(mAuth)
             }
         }
     }
@@ -43,9 +48,10 @@ class MainActivity : ComponentActivity() {
 //@Preview
 @Composable
 fun helpQuestNavegation(
-    modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
-) {
+    mAuth: FirebaseAuth,  // Recibe mAuth desde MainActivity
+    navController: NavHostController = rememberNavController(),
+    modifier: Modifier = Modifier
+    ) {
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
