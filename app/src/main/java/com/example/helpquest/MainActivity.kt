@@ -67,7 +67,7 @@ fun helpQuestNavegation(
             composable(route = "login") {
                 LoginScreen(navController = navController)  // Pantalla de login
             }
-            composable(route = "feed") {
+            composable(route = "Feed") {
                 FeedScreen(navController = navController)  // Pantalla de feed
             }
             composable(route = "Info") {
