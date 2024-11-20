@@ -9,11 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,14 +19,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun ExploreScreen(navController: NavHostController) {
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController = navController) }
+        bottomBar = { CustomBottomNavBar(navController = navController) } // Se utiliza el mismo navbar personalizado
     ) { paddingValues ->
 
         Column(
@@ -43,7 +38,6 @@ fun ExploreScreen(navController: NavHostController) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
 
             // Tarjeta en espera de build map
             Card(
@@ -64,8 +58,6 @@ fun ExploreScreen(navController: NavHostController) {
                     modifier = Modifier.padding(16.dp)
                 )
             }
-
-            // mapsfunction()
 
             // Contenedor de info
             Card(
@@ -118,56 +110,8 @@ fun ExploreScreen(navController: NavHostController) {
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
-    BottomAppBar(
-        containerColor = Color(0xFF90EE90),
-
-        ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            TextButton(onClick = { /*  Explore */ },
-                colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
-
-                Icon(
-                    imageVector = Icons.Filled.LocationOn,
-                    contentDescription = stringResource(id = R.string.explore),
-                    modifier = Modifier.size(24.dp)
-                )
-                Text(stringResource(id = R.string.explore))
-            }
-            TextButton(onClick = { /* Profile */ },
-                colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = stringResource(id = R.string.profile),
-                    modifier = Modifier.size(24.dp)
-                        .clickable { navController.navigate("Perfil") }
-                )
-                Text(stringResource(id = R.string.profile))
-            }
-            TextButton(onClick = { /* Updates */ },
-                colors = ButtonDefaults.textButtonColors(contentColor = Color.Black)) {
-                Column {
-
-                    Icon(
-                        imageVector = Icons.Filled.Notifications,
-                        contentDescription = stringResource(id = R.string.updates),
-                        modifier = Modifier.size(24.dp)
-                    )
-
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(stringResource(id = R.string.updates))
-            }
-        }
-    }
+fun ExploreScreenPreview() {
+    ExploreScreen(navController = rememberNavController())
 }
-
-// en construcción para el mapa real
-/*
-@Composable
-fun mapsfunction() {
-}*/

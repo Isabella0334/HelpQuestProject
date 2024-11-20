@@ -2,6 +2,7 @@ package com.example.helpquest
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,12 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 
 data class VolunteerActivity(
@@ -59,25 +59,25 @@ fun CustomCard(activity: VolunteerActivity, navController: NavHostController) {
                 }
             }
             // Tiempo
-            Row(// Alinea los elementos verticalmente en el centro
-                horizontalArrangement = Arrangement.spacedBy(4.dp) // Espacio entre los elementos
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_clock),
                     contentDescription = "Icono de reloj",
                     modifier = Modifier.size(20.dp)
                 )
-            Text(
-                text = "Tiempo: ",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Text(
-                text = activity.time,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-                }
+                Text(
+                    text = "Tiempo: ",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = activity.time,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            }
             // Título
             Text(
                 text = activity.title,
@@ -129,46 +129,56 @@ fun LabelChip(label: String, color: Color) {
 }
 
 @Composable
-fun CustomBottomNavBar() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF4CAF50))  // Fondo verde
-            .padding(5.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly, // Espacio equidistante entre los botones
-        verticalAlignment = Alignment.CenterVertically
+fun CustomBottomNavBar(navController: NavHostController) {
+    BottomAppBar(
+        containerColor = Color(0xFF4CAF50),  // Fondo verde
+        tonalElevation = 4.dp  // Leve elevación para destacar el navbar
     ) {
-        // Primer botón
-        BottomNavButton(
-            iconResId = R.drawable.ic_location,
-            label = "Explore"
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly, // Espacio equidistante entre los botones
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Botón "Explore"
+            BottomNavButton(
+                iconResId = R.drawable.ic_location,
+                label = "Explore",
+                onClick = { navController.navigate("Explore") }
+            )
 
-        // Segundo botón
-        BottomNavButton(
-            iconResId = R.drawable.ic_profile,
-            label = "Profile"
-        )
+            // Botón "Profile"
+            BottomNavButton(
+                iconResId = R.drawable.ic_profile,
+                label = "Profile",
+                onClick = { navController.navigate("Perfil") }
+            )
 
-        // Tercer botón
-        BottomNavButton(
-            iconResId = R.drawable.ic_updates,
-            label = "Updates"
-        )
+            // Botón "Updates"
+            BottomNavButton(
+                iconResId = R.drawable.ic_updates,
+                label = "Updates",
+                onClick = { navController.navigate("Updates") }
+            )
+        }
     }
 }
 
 @Composable
-fun BottomNavButton(iconResId: Int, label: String) {
+fun BottomNavButton(iconResId: Int, label: String, onClick: () -> Unit) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickable { onClick() }  // Hacer que el botón completo sea clicable
     ) {
         Image(
             painter = painterResource(id = iconResId),
             contentDescription = label,
-            modifier = Modifier.size(15.dp)
+            modifier = Modifier
+                .size(24.dp)  // Tamaño ajustado para mayor visibilidad
+                .padding(bottom = 4.dp)  // Espacio entre el ícono y el texto
         )
-        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
             fontSize = 12.sp,
@@ -176,7 +186,6 @@ fun BottomNavButton(iconResId: Int, label: String) {
         )
     }
 }
-
 
 @Composable
 fun FeedScreen(navController: NavHostController) {
@@ -200,13 +209,14 @@ fun FeedScreen(navController: NavHostController) {
     // Mostramos la lista de actividades en el feed
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { CustomBottomNavBar() } // El BottomNavBar se queda fijo en la parte inferior
+        bottomBar = { CustomBottomNavBar(navController = navController) } // El BottomNavBar se queda fijo en la parte inferior
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .background(Color(0xFFF8EFE8))
                 .verticalScroll(rememberScrollState())
                 .fillMaxSize()
+                .padding(paddingValues) // Añadir paddingValues para manejar la barra de navegación y otras áreas seguras
         ) {
             activities.forEach { activity ->
                 CustomCard(activity = activity, navController = navController)
@@ -215,3 +225,8 @@ fun FeedScreen(navController: NavHostController) {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun FeedScreenPreview() {
+    FeedScreen(navController = rememberNavController())
+}
