@@ -25,6 +25,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.helpquest.ui.theme.HelpQuestTheme
+import org.osmdroid.config.Configuration
+import android.app.Application
+
+class MyApplication : Application() { // clase para crear el usuario osmdroid para la importación del mapa
+    override fun onCreate() {
+        super.onCreate()
+        Configuration.getInstance().userAgentValue = "HelpQuest"  // seteado en el androidmanifest
+    }
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

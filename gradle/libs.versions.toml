@@ -1,5 +1,6 @@
 [versions]
 agp = "8.6.0"
+coilCompose = "2.4.0"
 firebaseAuth = "33.5.1"
 firebaseBom = "33.5.1"
 kotlin = "1.9.0"
@@ -10,12 +11,19 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.5"
 activityCompose = "1.9.2"
 composeBom = "2024.04.01"
+mapsCompose = "2.11.1"
 navigationRuntimeKtx = "2.8.2"
 navigationCompose = "2.8.2"
 firebaseAuthKtx = "23.1.0"
+osmdroidAndroid = "6.0.2"
+osmdroidAndroidVersion = "6.1.10"
+playServicesMaps = "19.0.0"
+preference = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-preference = { module = "androidx.preference:preference", version.ref = "preference" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -35,6 +43,10 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3"}
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
+osmdroid-android = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroid" }
+osmdroid-android-v6110 = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroidVersion" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
