@@ -1,6 +1,7 @@
 package com.example.helpquest
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -39,6 +40,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,6 +77,26 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
     // Obtener el usuario actual
     val user = FirebaseAuth.getInstance().currentUser
     val db = FirebaseFirestore.getInstance()
+
+
+    LaunchedEffect(user?.uid) {
+        if (user != null) {
+            // Si el usuario está autenticado, obtenemos los datos de Firestore
+            val docRef = db.collection("usuarios").document(user.uid)
+            docRef.get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Si los datos existen, los cargamos en los campos
+                    nombreCompleto = document.getString("nombre_completo") ?: ""
+                    edad = document.getLong("edad")?.toString() ?: ""
+                    documentoIdentidad = document.getLong("documento_identidad")?.toString() ?: ""
+                    terminosAceptados = document.getBoolean("terminos_aceptados") ?: false
+                }
+            }.addOnFailureListener {
+                // Si hubo un error al cargar los datos, los campos permanecerán vacíos
+                Log.e("Formulario", "Error al cargar los datos del usuario")
+            }
+        }
+    }
 
     // Esta función enviará los datos a Firestore
     fun enviarDatos() {
