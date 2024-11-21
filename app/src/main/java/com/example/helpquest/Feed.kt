@@ -2,6 +2,7 @@ package com.example.helpquest
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,13 +14,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 
 data class VolunteerActivity(
     val imageResId: Int,
@@ -129,44 +134,60 @@ fun LabelChip(label: String, color: Color) {
 }
 
 @Composable
-fun CustomBottomNavBar() {
+fun CustomBottomNavBar(navController: NavHostController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF4CAF50))  // Fondo verde
+            .background(Color(0xFF4CAF50))
             .padding(5.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly, // Espacio equidistante entre los botones
+        horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Primer botón
         BottomNavButton(
             iconResId = R.drawable.ic_location,
-            label = "Explore"
+            label = "Explore",
+            onClick = {
+                navController.navigate("explore") {
+                    launchSingleTop = true
+                    popUpTo("feed") { inclusive = false }
+                }
+            }
         )
-
-        // Segundo botón
         BottomNavButton(
             iconResId = R.drawable.ic_profile,
-            label = "Profile"
+            label = "Profile",
+            onClick = {
+                navController.navigate("profile") {
+                    launchSingleTop = true
+                    popUpTo("feed") { inclusive = false }
+                }
+            }
         )
-
-        // Tercer botón
         BottomNavButton(
             iconResId = R.drawable.ic_updates,
-            label = "Updates"
+            label = "Feed",
+            onClick = {
+                navController.navigate("feed") {
+                    launchSingleTop = true
+                    popUpTo("feed") { inclusive = false }
+                }
+            }
         )
     }
 }
 
+
+
 @Composable
-fun BottomNavButton(iconResId: Int, label: String) {
+fun BottomNavButton(iconResId: Int, label: String, onClick: () -> Unit) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
         Image(
             painter = painterResource(id = iconResId),
             contentDescription = label,
-            modifier = Modifier.size(15.dp)
+            modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
@@ -177,11 +198,10 @@ fun BottomNavButton(iconResId: Int, label: String) {
     }
 }
 
-
 @Composable
 fun FeedScreen(navController: NavHostController) {
 
-    val activities = listOf(
+    val allActivities = listOf(
         VolunteerActivity(
             imageResId = R.drawable.img_playa,
             labels = listOf("❤ Comunidad" to Color(0xFF9C27B0), "🌿 Medio Ambiente" to Color(0xFFFFC107)),
@@ -197,21 +217,62 @@ fun FeedScreen(navController: NavHostController) {
             description = "¡Ya comenzamos las inscripciones para la Carrera UVG! Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG)."
         )
     )
+
+    var searchQuery by remember { mutableStateOf("") }
+
+    // Filtrar actividades basadas en la consulta de búsqueda
+    val filteredActivities = allActivities.filter { activity ->
+        activity.title.contains(searchQuery, ignoreCase = true) ||
+                activity.description.contains(searchQuery, ignoreCase = true) ||
+                activity.labels.any { it.first.contains(searchQuery, ignoreCase = true) }
+    }
+
     // Mostramos la lista de actividades en el feed
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { CustomBottomNavBar() } // El BottomNavBar se queda fijo en la parte inferior
+        bottomBar = { CustomBottomNavBar(navController) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .background(Color(0xFFF8EFE8))
-                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
         ) {
-            activities.forEach { activity ->
-                CustomCard(activity = activity, navController = navController)
+            // Barra de búsqueda
+            SearchBar(
+                searchQuery = searchQuery,
+                onQueryChange = { searchQuery = it }
+            )
+
+            // Mostrar actividades filtradas
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                filteredActivities.forEach { activity ->
+                    CustomCard(activity = activity, navController = navController)
+                }
             }
         }
     }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit) {
+    TextField(
+        value = searchQuery,
+        onValueChange = onQueryChange,
+        placeholder = { Text("Buscar actividades...") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(Color.White, RoundedCornerShape(8.dp)),
+        singleLine = true,
+        colors = TextFieldDefaults.textFieldColors(
+            containerColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        )
+    )
 }
 

@@ -82,6 +82,10 @@ fun helpQuestNavegation(
             composable(route = "Perfil") {
                 PantallaPerfil(navController = navController)
             }
+            composable(route = "register") {
+                RegisterScreen(navController = navController)
+            }
+
         }
     }
 }
