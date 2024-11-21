@@ -19,7 +19,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.navigation.compose.rememberNavController
+
 
 data class VolunteerActivity(
     val imageResId: Int,
@@ -130,54 +137,61 @@ fun LabelChip(label: String, color: Color) {
 
 @Composable
 fun CustomBottomNavBar(navController: NavHostController) {
-    BottomAppBar(
-        containerColor = Color(0xFF4CAF50),  // Fondo verde
-        tonalElevation = 4.dp  // Leve elevación para destacar el navbar
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF4CAF50))
+            .padding(5.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly, // Espacio equidistante entre los botones
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Botón "Explore"
-            BottomNavButton(
-                iconResId = R.drawable.ic_location,
-                label = "Explore",
-                onClick = { navController.navigate("Explore") }
-            )
-
-            // Botón "Profile"
-            BottomNavButton(
-                iconResId = R.drawable.ic_profile,
-                label = "Profile",
-                onClick = { navController.navigate("Perfil") }
-            )
-
-            // Botón "Updates"
-            BottomNavButton(
-                iconResId = R.drawable.ic_updates,
-                label = "Updates",
-                onClick = { navController.navigate("Updates") }
-            )
-        }
+        BottomNavButton(
+            iconResId = R.drawable.ic_location,
+            label = "Explore",
+            onClick = {
+                navController.navigate("explore") {
+                    launchSingleTop = true
+                    popUpTo("feed") { inclusive = false }
+                }
+            }
+        )
+        BottomNavButton(
+            iconResId = R.drawable.ic_profile,
+            label = "Profile",
+            onClick = {
+                navController.navigate("Perfil") {
+                    launchSingleTop = true
+                    popUpTo("feed") { inclusive = false }
+                }
+            }
+        )
+        BottomNavButton(
+            iconResId = R.drawable.ic_updates,
+            label = "Feed",
+            onClick = {
+                navController.navigate("feed") {
+                    launchSingleTop = true
+                    popUpTo("feed") { inclusive = false }
+                }
+            }
+        )
     }
 }
+
+
 
 @Composable
 fun BottomNavButton(iconResId: Int, label: String, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .clickable { onClick() }  // Hacer que el botón completo sea clicable
+
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
         Image(
             painter = painterResource(id = iconResId),
             contentDescription = label,
-            modifier = Modifier
-                .size(24.dp)  // Tamaño ajustado para mayor visibilidad
-                .padding(bottom = 4.dp)  // Espacio entre el ícono y el texto
+            modifier = Modifier.size(24.dp).padding(bottom = 4.dp)
+
         )
         Text(
             text = label,
@@ -190,7 +204,7 @@ fun BottomNavButton(iconResId: Int, label: String, onClick: () -> Unit) {
 @Composable
 fun FeedScreen(navController: NavHostController) {
 
-    val activities = listOf(
+    val allActivities = listOf(
         VolunteerActivity(
             imageResId = R.drawable.img_playa,
             labels = listOf("❤ Comunidad" to Color(0xFF9C27B0), "🌿 Medio Ambiente" to Color(0xFFFFC107)),
@@ -206,27 +220,64 @@ fun FeedScreen(navController: NavHostController) {
             description = "¡Ya comenzamos las inscripciones para la Carrera UVG! Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG)."
         )
     )
+
+    var searchQuery by remember { mutableStateOf("") }
+
+    // Filtrar actividades basadas en la consulta de búsqueda
+    val filteredActivities = allActivities.filter { activity ->
+        activity.title.contains(searchQuery, ignoreCase = true) ||
+                activity.description.contains(searchQuery, ignoreCase = true) ||
+                activity.labels.any { it.first.contains(searchQuery, ignoreCase = true) }
+    }
+
     // Mostramos la lista de actividades en el feed
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { CustomBottomNavBar(navController = navController) } // El BottomNavBar se queda fijo en la parte inferior
+        bottomBar = { CustomBottomNavBar(navController) }
+
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .background(Color(0xFFF8EFE8))
-                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
                 .padding(paddingValues) // Añadir paddingValues para manejar la barra de navegación y otras áreas seguras
         ) {
-            activities.forEach { activity ->
-                CustomCard(activity = activity, navController = navController)
+            // Barra de búsqueda
+            SearchBar(
+                searchQuery = searchQuery,
+                onQueryChange = { searchQuery = it }
+            )
+
+            // Mostrar actividades filtradas
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                filteredActivities.forEach { activity ->
+                    CustomCard(activity = activity, navController = navController)
+                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedScreenPreview() {
-    FeedScreen(navController = rememberNavController())
+fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit) {
+    TextField(
+        value = searchQuery,
+        onValueChange = onQueryChange,
+        placeholder = { Text("Buscar actividades...") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(Color.White, RoundedCornerShape(8.dp)),
+        singleLine = true,
+        colors = TextFieldDefaults.textFieldColors(
+            containerColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        )
+    )
 }
+

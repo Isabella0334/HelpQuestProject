@@ -121,7 +121,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
 
         // Register Button (Aún no funcional)
         Button(
-            onClick = { /* Aquí iría la lógica para registro */ },
+            onClick = { navController.navigate("register") },
             colors = ButtonDefaults.buttonColors(Color(0xFF00C853)),
             modifier = Modifier
                 .padding(vertical = 8.dp)
