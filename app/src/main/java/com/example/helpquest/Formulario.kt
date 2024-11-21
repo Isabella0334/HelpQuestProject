@@ -69,6 +69,8 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
     var edad by remember { mutableStateOf("") }
     var documentoIdentidad by remember { mutableStateOf("") }
     var terminosAceptados by remember { mutableStateOf(false) }
+    var edadError by remember { mutableStateOf("") }
+    var documentoError by remember { mutableStateOf("") }
 
     // Obtener el usuario actual
     val user = FirebaseAuth.getInstance().currentUser
@@ -77,11 +79,25 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
     // Esta función enviará los datos a Firestore
     fun enviarDatos() {
         if (user != null) {
+            // Validar que la edad sea un número válido
+            val edadInt = edad.toIntOrNull()
+            if (edadInt == null || edadInt <= 0 || edadInt >= 200) {
+                edadError = "Por favor ingresa una edad válida"
+                return // Si la edad no es válida, no enviamos el formulario
+            }
+
+            // Validar que el documento de identidad sea un número válido
+            val documentoInt = documentoIdentidad.toIntOrNull()
+            if (documentoInt == null || documentoInt <= 0) {
+                documentoError = "Por favor ingresa un documento de identidad válido"
+                return // Si el documento no es válido, no enviamos el formulario
+            }
+
             // Crear un mapa con los datos del formulario
             val usuarioData = hashMapOf(
                 "nombre_completo" to if (nombreCompleto.isNotBlank()) nombreCompleto else null,
-                "edad" to if (edad.isNotBlank()) edad.toInt() else 0,
-                "documento_identidad" to if (documentoIdentidad.isNotBlank()) documentoIdentidad.toInt() else 0,
+                "edad" to edadInt,
+                "documento_identidad" to documentoInt,
                 "terminos_aceptados" to terminosAceptados
             )
 
@@ -91,10 +107,9 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
                 .set(usuarioData, SetOptions.merge()) // Usamos merge para no sobrescribir otros datos
                 .addOnSuccessListener {
                     // Si el formulario se envía correctamente pues regresamos al feed
-                    navController.navigate("feed") //
+                    navController.navigate("feed")
                 }
                 .addOnFailureListener { exception ->
-
                     println("Error al enviar los datos: ${exception.message}")
                 }
         }
@@ -145,22 +160,42 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
             // Edad
             OutlinedTextField(
                 value = edad,
-                onValueChange = { edad = it },
+                onValueChange = { edad = it; edadError = "" }, // Limpiar error al cambiar valor
                 label = { Text(stringResource(id = R.string.age_label)) },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = edadError.isNotEmpty()
             )
+
+            // Mostrar error si la edad no es válida
+            if (edadError.isNotEmpty()) {
+                Text(
+                    text = edadError,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
 
             // Documento de Identidad
             OutlinedTextField(
                 value = documentoIdentidad,
-                onValueChange = { documentoIdentidad = it },
+                onValueChange = { documentoIdentidad = it; documentoError = "" }, // Limpiar error al cambiar valor
                 label = { Text(stringResource(R.string.identity_document_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                trailingIcon = {
-                    Icon(Icons.Default.Add, contentDescription = "Add document")
-                }
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                isError = documentoError.isNotEmpty()
             )
+
+            // Mostrar error si el documento de identidad no es válido
+            if (documentoError.isNotEmpty()) {
+                Text(
+                    text = documentoError,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
 
             // Checkbox de términos y condiciones
             TérminosYCondiciones(terminosAceptados) { terminosAceptados = it }
