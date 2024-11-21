@@ -52,6 +52,19 @@ android {
 
 dependencies {
 
+    implementation(libs.coil.compose)
+    implementation(libs.coil.compose)
+
+
+    implementation(libs.androidx.preference)
+    implementation(libs.osmdroid.android)
+    implementation(libs.osmdroid.android.v6110)
+
+
+
+
+    //implementation(libs.play.services.maps)
+   // implementation(libs.maps.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -77,6 +90,8 @@ dependencies {
     implementation(libs.firebase.analytics)
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
-    // implementation 'com.google.android.gms:play-services-maps:18.1.0' // SDK DE GOOGLEMAPS
+    //implementation 'com.google.android.gms:play-services-maps:18.1.0' // SDK DE GOOGLEMAPS
     //    implementation 'com.google.maps.android:maps-compose:2.11.2'     // JETPACK PARA IMPLEMENTAR
+
+
 }
