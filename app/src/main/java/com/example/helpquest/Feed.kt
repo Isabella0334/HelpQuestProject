@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.navigation.compose.rememberNavController
 
 
 data class VolunteerActivity(
@@ -64,25 +66,25 @@ fun CustomCard(activity: VolunteerActivity, navController: NavHostController) {
                 }
             }
             // Tiempo
-            Row(// Alinea los elementos verticalmente en el centro
-                horizontalArrangement = Arrangement.spacedBy(4.dp) // Espacio entre los elementos
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_clock),
                     contentDescription = "Icono de reloj",
                     modifier = Modifier.size(20.dp)
                 )
-            Text(
-                text = "Tiempo: ",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Text(
-                text = activity.time,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-                }
+                Text(
+                    text = "Tiempo: ",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = activity.time,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            }
             // Título
             Text(
                 text = activity.title,
@@ -157,7 +159,7 @@ fun CustomBottomNavBar(navController: NavHostController) {
             iconResId = R.drawable.ic_profile,
             label = "Profile",
             onClick = {
-                navController.navigate("profile") {
+                navController.navigate("Perfil") {
                     launchSingleTop = true
                     popUpTo("feed") { inclusive = false }
                 }
@@ -182,14 +184,15 @@ fun CustomBottomNavBar(navController: NavHostController) {
 fun BottomNavButton(iconResId: Int, label: String, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+
         modifier = Modifier.clickable(onClick = onClick)
     ) {
         Image(
             painter = painterResource(id = iconResId),
             contentDescription = label,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp).padding(bottom = 4.dp)
+
         )
-        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
             fontSize = 12.sp,
@@ -231,11 +234,13 @@ fun FeedScreen(navController: NavHostController) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = { CustomBottomNavBar(navController) }
+
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .background(Color(0xFFF8EFE8))
                 .fillMaxSize()
+                .padding(paddingValues) // Añadir paddingValues para manejar la barra de navegación y otras áreas seguras
         ) {
             // Barra de búsqueda
             SearchBar(
