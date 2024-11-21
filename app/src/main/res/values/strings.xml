@@ -2,14 +2,14 @@
     <string name="app_name">HelpQuest</string>
 
     //Strings para pantalla Formulario.kt
-    <string name="form_title">Application Form</string>
-    <string name="form_description">Necessary information for your application</string>
-    <string name="full_name_label">Full name</string>
-    <string name="age_label">Age</string>
-    <string name="identity_document_label">Identity document</string>
-    <string name="terms_checkbox_text">I accept the terms</string>
-    <string name="send_button_text">Send my application</string>
-    <string name="terms_and_conditions">Read our T&amp;Cs</string>
+    <string name="form_title">Formulario de aplicación</string>
+    <string name="form_description">Informacion necesario para tu aplicación</string>
+    <string name="full_name_label">Nombre completo</string>
+    <string name="age_label">Edad</string>
+    <string name="identity_document_label">Documento de identidad</string>
+    <string name="terms_checkbox_text">Acepto los términos y condiciones</string>
+    <string name="send_button_text">Enviar mi aplicación</string>
+    <string name="terms_and_conditions">Lee nuestros términos y condiciones</string>
 
     //String pantalla profile.kt
     <string name="prox_actividades">Próximas Actividades</string>

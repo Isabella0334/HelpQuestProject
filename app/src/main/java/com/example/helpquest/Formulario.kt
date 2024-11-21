@@ -90,11 +90,11 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
                 .document(user.uid) // Documento identificado por el UID de Firebase Authentication
                 .set(usuarioData, SetOptions.merge()) // Usamos merge para no sobrescribir otros datos
                 .addOnSuccessListener {
-                    // Si el formulario se envía correctamente, redirigir o hacer algo
-                    navController.navigate("feed") // O donde quieras redirigir
+                    // Si el formulario se envía correctamente pues regresamos al feed
+                    navController.navigate("feed") //
                 }
                 .addOnFailureListener { exception ->
-                    // Si ocurre un error, puedes manejarlo aquí
+
                     println("Error al enviar los datos: ${exception.message}")
                 }
         }
