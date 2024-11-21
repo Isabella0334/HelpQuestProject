@@ -369,8 +369,3 @@ fun PastActivityList() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PantallaPerfilPreview() {
-    PantallaPerfil(navController = rememberNavController())
-}
