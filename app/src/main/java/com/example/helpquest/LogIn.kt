@@ -4,6 +4,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -19,9 +20,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.navigation.NavHostController
 import com.example.helpquest.R
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Icon
+
 
 @Composable
 fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController) {
@@ -30,6 +37,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
     var errorMessage by remember { mutableStateOf("") }  // Mensaje de error
     val auth = FirebaseAuth.getInstance()  // Instancia de FirebaseAuth
     val snackbarHostState = remember { SnackbarHostState() }  // Snackbar para mostrar errores
+    var isPasswordVisible by remember { mutableStateOf(false) }  // Estado para la visibilidad de la contraseña
 
     // Cuando errorMessage cambia, mostramos el Snackbar
     LaunchedEffect(errorMessage) {
@@ -82,9 +90,20 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavHostController)
             value = password,
             onValueChange = { password = it },
             label = { Text(text = stringResource(id = R.string.password_label)) },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    Icon(
+                        imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (isPasswordVisible)
+                            stringResource(id = R.string.toggle_password_visibility_hide)
+                        else
+                            stringResource(id = R.string.toggle_password_visibility_show)
+                    )
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),

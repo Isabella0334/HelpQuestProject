@@ -42,6 +42,8 @@
     <string name="password_label">Password</string>
     <string name="login_button_text">Log in</string>
     <string name="register_button_text">Register</string>
+    <string name="toggle_password_visibility_show">Mostrar contraseña</string>
+    <string name="toggle_password_visibility_hide">Ocultar contraseña</string>
 
     //String pantalla Feed.kt
     <string name="image_activity">Imagen de la actividad</string>
