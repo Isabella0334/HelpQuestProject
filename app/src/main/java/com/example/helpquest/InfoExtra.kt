@@ -2,9 +2,12 @@ package com.example.helpquest
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
@@ -74,100 +77,127 @@ fun InfoScreen(navController: NavHostController, idA: String?) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .background(Color(0xFFF8EFE8))
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Imagen de la actividad
-            Image(
-                painter = rememberAsyncImagePainter(model = activity!!.Imagen),
-                contentDescription = "Imagen de la actividad",
+            Card(
+                shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Título y creador
-            Text(
-                text = activity!!.nombre,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Creado por: ${activity!!.creator}",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Descripción
-            Text(
-                text = activity!!.descripcion,
-                fontSize = 16.sp
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Mostrar el lugar en lugar de las coordenadas
-            Text(
-                text = "Ubicación: ${activity!!.lugar}",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-
-            // Fecha y hora
-            val formattedDate = activity!!.fechahora.toDate().let { date ->
-                SimpleDateFormat("dd 'de' MMMM 'de' yyyy, hh:mm a", Locale("es", "ES")).format(date)
-            }
-            Text(
-                text = "Fecha y hora: $formattedDate",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Tipo de tarea
-            val tipoColaborativa = if (activity!!.colaborativa) "Colaborativa" else "Solo"
-            Text(
-                text = "Tipo de tarea: $tipoColaborativa",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-
-            // Habilidades requeridas
-            if (activity!!.skills.isNotEmpty()) {
-                Text(
-                    text = "Habilidades requeridas: ${activity!!.skills}",
-                    fontSize = 14.sp,
-                    color = Color.Gray
+                    .padding(16.dp),
+                elevation = CardDefaults.cardElevation(4.dp),  // Elevación corregida
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White  // Color de fondo de la tarjeta
                 )
-            }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    // Imagen de la actividad
+                    Image(
+                        painter = rememberAsyncImagePainter(model = activity!!.Imagen),
+                        contentDescription = "Imagen de la actividad",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentScale = ContentScale.Crop
+                    )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            // Etiquetas de actividad
-            if (activity!!.tipo.isNotEmpty()) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    activity!!.tipo.forEach { label ->
-                        LabelChip(label = label, color = Color(0xFF4CAF50)) // Etiquetas en color verde
+                    // Título y creador
+                    Text(
+                        text = activity!!.nombre,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Creado por: ${activity!!.creator}",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Descripción
+                    Text(
+                        text = activity!!.descripcion,
+                        fontSize = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Mostrar el lugar en lugar de las coordenadas
+                    Text(
+                        text = "Ubicación: ${activity!!.lugar}",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+
+                    // Fecha y hora
+                    val formattedDate = activity!!.fechahora.toDate().let { date ->
+                        SimpleDateFormat(
+                            "dd 'de' MMMM 'de' yyyy, hh:mm a",
+                            Locale("es", "ES")
+                        ).format(
+                            date
+                        )
+                    }
+                    Text(
+                        text = "Fecha y hora: $formattedDate",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Tipo de tarea
+                    val tipoColaborativa = if (activity!!.colaborativa) "Colaborativa" else "Solo"
+                    Text(
+                        text = "Tipo de tarea: $tipoColaborativa",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+
+                    // Habilidades requeridas
+                    if (activity!!.skills.isNotEmpty()) {
+                        Text(
+                            text = "Habilidades requeridas: ${activity!!.skills}",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Etiquetas de actividad
+                    if (activity!!.tipo.isNotEmpty()) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            activity!!.tipo.forEach { label ->
+                                LabelChip(
+                                    label = label,
+                                    color = Color(0xFF4CAF50)
+                                ) // Etiquetas en color verde
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Botón para aplicar
+                    Button(
+                        onClick = { navController.navigate("formulario") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))
+                    ) {
+                        Text(text = "Aplicar")
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Botón para aplicar
-            Button(
-                onClick = { navController.navigate("formulario") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))
-            ) {
-                Text(text = "Aplicar")
             }
         }
     } else {

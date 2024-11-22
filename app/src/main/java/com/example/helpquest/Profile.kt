@@ -194,22 +194,6 @@ fun ProximasActivdadesCard(modifier: Modifier = Modifier) {
 
             ProximaActividadList()
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Button(
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF28B3E)),
-                    onClick = {/* TODO */}
-                ) {
-                    Text(stringResource(id = R.string.mas_info))
-                }
-
-            }
         }
     }
 }
@@ -256,25 +240,7 @@ fun LogrosCard(modifier: Modifier = Modifier) {
                     modifier = Modifier.width(50.dp)
                 )
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Button(
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF28B3E)),
-                    onClick = {/* TODO */}
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.mas_info),
-                        textAlign = TextAlign.Center
-                    )
-                }
 
-            }
         }
     }
 }
@@ -307,22 +273,6 @@ fun HistorialCard(modifier: Modifier = Modifier) {
 
             PastActivityList()
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Button(
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF28B3E)), // 0xFFF28B3E
-                    onClick = {/* TODO */}
-                ) {
-                    Text(stringResource(id = R.string.mas_info))
-                }
-
-            }
         }
     }
 }
