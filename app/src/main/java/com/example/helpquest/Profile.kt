@@ -63,7 +63,7 @@ data class PastActivity(
 )
 
 data class UserProfile(val nombres: String?, val apellidos: String?)
-
+//haremos una corutina para jalar los datos del nombre y apellidos de firebase
 suspend fun getUserProfileFromFirestore(userId: String): UserProfile? {
     return withContext(Dispatchers.IO) {
         try {
