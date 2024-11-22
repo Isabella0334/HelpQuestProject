@@ -1,5 +1,6 @@
 package com.example.helpquest
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -25,15 +25,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.navigation.compose.rememberNavController
-
+import com.google.firebase.firestore.FirebaseFirestore
+import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.GeoPoint
 
 data class VolunteerActivity(
-    val imageResId: Int,
-    val labels: List<Pair<String, Color>>,
-    val time: String,
-    val title: String,
-    val description: String
+    val idA: String = "",
+    val nombre: String = "",
+    val descripcion: String = "",
+    val lugar: String = "",
+    val tiempo: String = "",
+    val skills: String = "",
+    val colaborativa: Boolean = false,
+    val Imagen: String = "",
+    val tipo: List<String> = emptyList(),
+    val creator: String = "",
+    val coordenadas: GeoPoint = GeoPoint(0.0, 0.0),
+    val fechahora: Timestamp = Timestamp.now() // El campo es de tipo Timestamp
 )
 
 @Composable
@@ -51,20 +60,29 @@ fun CustomCard(activity: VolunteerActivity, navController: NavHostController) {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Imagen de la actividad o imagen predeterminada
             Image(
-                painter = painterResource(id = activity.imageResId),
+                painter = if (activity.Imagen.isNotEmpty()) { // Usar el campo "Imagen" para la URL
+                    rememberAsyncImagePainter(model = activity.Imagen) // Cargar la URL de la imagen
+                } else {
+                    painterResource(id = R.drawable.img_tarjeta1) // Imagen predeterminada si está vacía
+                },
                 contentDescription = "Imagen de la actividad",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp),
                 contentScale = ContentScale.Crop
             )
-            // Etiquetas
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                activity.labels.forEach { label ->
-                    LabelChip(label = label.first, color = label.second)
+
+            // Etiquetas (labels) - Opcional si existen etiquetas
+            if (activity.tipo.isNotEmpty()) { // Verifica si hay etiquetas disponibles
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    activity.tipo.forEach { label ->
+                        LabelChip(label = label, color = Color(0xFF4CAF50)) // Usa un color predeterminado
+                    }
                 }
             }
+
             // Tiempo
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -80,36 +98,41 @@ fun CustomCard(activity: VolunteerActivity, navController: NavHostController) {
                     color = Color.Gray
                 )
                 Text(
-                    text = activity.time,
+                    text = activity.tiempo, // Usar el campo "tiempo" de Firestore
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
             }
+
             // Título
             Text(
-                text = activity.title,
+                text = activity.nombre, // Usar el campo "nombre" de Firestore
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
+
             // Descripción
             Text(
-                text = activity.description,
+                text = activity.descripcion, // Usar el campo "descripcion" de Firestore
                 fontSize = 14.sp,
                 color = Color.Gray
             )
+
             // Botones
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { navController.navigate("Info") },
+                    onClick = {
+                        navController.navigate("info/${activity.idA}") // Navegar pasando el ID de la actividad
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                 ) {
                     Text(text = "Más información")
                 }
                 Button(
-                    onClick = { navController.navigate("Formulario") },
+                    onClick = { navController.navigate("Formulario") }, // Navegar a la pantalla "Formulario"
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))
                 ) {
                     Text(text = "Aplicar")
@@ -119,7 +142,7 @@ fun CustomCard(activity: VolunteerActivity, navController: NavHostController) {
     }
 }
 
-// Etiquetas reutilizables
+
 @Composable
 fun LabelChip(label: String, color: Color) {
     Surface(
@@ -178,8 +201,6 @@ fun CustomBottomNavBar(navController: NavHostController) {
     }
 }
 
-
-
 @Composable
 fun BottomNavButton(iconResId: Int, label: String, onClick: () -> Unit) {
     Column(
@@ -203,57 +224,65 @@ fun BottomNavButton(iconResId: Int, label: String, onClick: () -> Unit) {
 
 @Composable
 fun FeedScreen(navController: NavHostController) {
-
-    val allActivities = listOf(
-        VolunteerActivity(
-            imageResId = R.drawable.img_playa,
-            labels = listOf("❤ Comunidad" to Color(0xFF9C27B0), "🌿 Medio Ambiente" to Color(0xFFFFC107)),
-            time = "2h - 1 Día",
-            title = "Limpieza de Playa",
-            description = "Ayuda a limpiar las playas de la ciudad. Necesitamos voluntarios comprometidos con el medio ambiente."
-        ),
-        VolunteerActivity(
-            imageResId = R.drawable.img_uvg,
-            labels = listOf("💪 Deporte" to Color(0xFF4CAF50)),
-            time = "1h - 3h",
-            title = "Carrera UVG",
-            description = "¡Ya comenzamos las inscripciones para la Carrera UVG! Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG)."
-        )
-    )
-
+    val db = FirebaseFirestore.getInstance()
+    var activities by remember { mutableStateOf<List<VolunteerActivity>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
 
-    // Filtrar actividades basadas en la consulta de búsqueda
-    val filteredActivities = allActivities.filter { activity ->
-        activity.title.contains(searchQuery, ignoreCase = true) ||
-                activity.description.contains(searchQuery, ignoreCase = true) ||
-                activity.labels.any { it.first.contains(searchQuery, ignoreCase = true) }
+    LaunchedEffect(Unit) {
+        db.collection("activity")
+            .get()
+            .addOnSuccessListener { result ->
+                activities = result.map { document ->
+                    document.toObject(VolunteerActivity::class.java).copy(
+                        idA = document.id
+                    )
+                }
+
+                Log.d("Firestore", "Actividades cargadas: $activities")
+                isLoading = false
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FirestoreError", "Error al cargar actividades", exception)
+                isLoading = false
+            }
     }
 
-    // Mostramos la lista de actividades en el feed
+    val filteredActivities = activities.filter { activity ->
+        activity.nombre.contains(searchQuery, ignoreCase = true) ||
+                activity.descripcion.contains(searchQuery, ignoreCase = true) ||
+                activity.tipo.any { it.contains(searchQuery, ignoreCase = true) }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = { CustomBottomNavBar(navController) }
-
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .background(Color(0xFFF8EFE8))
                 .fillMaxSize()
-                .padding(paddingValues) // Añadir paddingValues para manejar la barra de navegación y otras áreas seguras
+                .padding(paddingValues)
         ) {
-            // Barra de búsqueda
             SearchBar(
                 searchQuery = searchQuery,
                 onQueryChange = { searchQuery = it }
             )
 
-            // Mostrar actividades filtradas
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-                filteredActivities.forEach { activity ->
-                    CustomCard(activity = activity, navController = navController)
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else if (filteredActivities.isEmpty()) {
+                Text(
+                    text = "No se encontraron actividades.",
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    color = Color.Gray,
+                    fontSize = 16.sp
+                )
+            } else {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    filteredActivities.forEach { activity ->
+                        CustomCard(activity = activity, navController = navController)
+                    }
                 }
             }
         }

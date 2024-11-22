@@ -27,6 +27,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.helpquest.ui.theme.HelpQuestTheme
 import org.osmdroid.config.Configuration
 import android.app.Application
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 class MyApplication : Application() { // clase para crear el usuario osmdroid para la importación del mapa
     override fun onCreate() {
@@ -79,8 +81,12 @@ fun helpQuestNavegation(
             composable(route = "Feed") {
                 FeedScreen(navController = navController)  // Pantalla de feed
             }
-            composable(route = "Info") {
-                InfoScreen(navController = navController)
+            composable(
+                route = "Info/{idA}", // Ruta que acepta el argumento idA
+                arguments = listOf(navArgument("idA") { type = NavType.StringType }) // Especificar que idA es String
+            ) { backStackEntry ->
+                val idA = backStackEntry.arguments?.getString("idA") // Recuperar idA del argumento
+                InfoScreen(navController = navController, idA = idA) // Pasar idA a InfoScreen
             }
             composable(route = "Formulario") {
                 FormularioScreen(navController = navController)
@@ -94,7 +100,6 @@ fun helpQuestNavegation(
             composable(route = "register") {
                 RegisterScreen(navController = navController)
             }
-
         }
     }
 }
