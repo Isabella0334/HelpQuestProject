@@ -59,7 +59,9 @@ dependencies {
     implementation(libs.androidx.preference)
     implementation(libs.osmdroid.android)
     implementation(libs.osmdroid.android.v6110)
+    implementation (libs.firebase.firestore.ktx)
 
+    implementation (libs.firebase.firestore.ktx.v2491)
 
 
 

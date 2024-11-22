@@ -1,5 +1,6 @@
 package com.example.helpquest
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -29,33 +33,63 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.firestore.FirebaseFirestore
 
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
-
+// de nativo a firebase
 @Composable
 fun InteractiveMap() {
-    // Crear MapView, inicializando y configurando la vista del mapa
     val context = LocalContext.current
+    val mapView = remember { MapView(context) }
+    val geoPoints = remember { mutableStateListOf<Pair<GeoPoint, String>>() } // marcador de coordenadas geopoint
 
-    val mapView = MapView(context).apply {
-        setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK) // Fuente del mapa sourcemap
-        controller.setZoom(15)
-        controller.setCenter(GeoPoint(14.605112, -90.490206)) // Coordenadas de la ubicación
+    // conexión hacia firebase / firestore
+    val db = FirebaseFirestore.getInstance()
+
+    LaunchedEffect(Unit) {
+        db.collection("activity")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+
+                    val geoPoint = document.getGeoPoint("coordenadas") // geopoint no array
+                    val descripcion = document.getString("descripcion")
+
+                    if (geoPoint != null && descripcion != null) {
+                        geoPoints.add(Pair(GeoPoint(geoPoint.latitude, geoPoint.longitude), descripcion))
+                        Log.d("Firebase", "GeoPoint: ${geoPoint.latitude}, ${geoPoint.longitude}, Descripción: $descripcion")
+                    }
+                }
+                // centraliza la dirección exacta sin marker
+                if (geoPoints.isNotEmpty()) {
+                    mapView.controller.setZoom(15)
+                    mapView.controller.setCenter(geoPoints[0].first)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firebase", "Error obteniendo coordenadas: ", exception)
+            }
     }
 
-    // Agregar un marcador
-    val marker = Marker(mapView).apply {
-        position = GeoPoint(14.605112, -90.490206) // Coordenadas del marcador
-        title = "Ubicación de ejemplo" // Título del marcador
+    // marker problemas con geopoint
+    LaunchedEffect(geoPoints) {
+        geoPoints.forEach { (point, description) ->
+            val marker = Marker(mapView).apply {
+                position = point
+                title = description
+            }
+            mapView.overlays.add(marker)
+        }
     }
-    mapView.overlays.add(marker)
 
     AndroidView(
         factory = { mapView },
-        modifier = Modifier.fillMaxWidth().height(400.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(400.dp)
     )
 }
 
@@ -120,14 +154,14 @@ fun ExploreScreen(navController: NavHostController) {
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(
-                            onClick = { /* More info */ },
+                            onClick = { navController.navigate("Info") },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34C85A))
                         ) {
                             Text(stringResource(id = R.string.more_info), color = Color.White)
                         }
 
                         Button(
-                            onClick = { /* Apply */ },
+                            onClick = { navController.navigate("Formulario") },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500))
                         ) {
                             Text(stringResource(id = R.string.apply), color = Color.White)
