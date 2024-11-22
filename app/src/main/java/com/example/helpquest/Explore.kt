@@ -149,7 +149,7 @@ fun ExploreScreen(navController: NavHostController) {
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             Button(
-                                onClick = { navController.navigate("Info") },
+                                onClick = { navController.navigate("Feed") },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34C85A))
                             ) {
                                 Text(stringResource(id = R.string.more_info), color = Color.White)
