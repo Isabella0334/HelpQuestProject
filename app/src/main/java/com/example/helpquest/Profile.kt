@@ -23,10 +23,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 data class FutureActivity(
     val numActividad: String,
@@ -53,47 +61,91 @@ data class PastActivity(
 
 @Composable
 fun PantallaPerfil(navController: NavHostController) {
-    Scaffold(
-        bottomBar = { CustomBottomNavBar(navController = navController) } // Añadido el CustomBottomNavBar
-    ) { paddingValues ->
+    // Estados para los datos del usuario
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(true) } // Indicador de carga
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFF8EFE8))
-                .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.pfp),
-                    contentDescription = "Foto de perfil",
-                    modifier = Modifier.width(60.dp)
-                )
-                Column(modifier = Modifier.padding(40.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.nombre_usuario),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 25.sp
-                    )
-                    Text(text = stringResource(id = R.string.info_usuario))
+    // Obtener el uid del usuario autenticado
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val userId = currentUser?.uid
+
+    // Llamada a Firestore para obtener los datos del usuario
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            // Consultar Firestore para obtener los datos del usuario
+            FirebaseFirestore.getInstance()
+                .collection("usuarios")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        // Recuperamos los campos nombres y apellidos
+                        firstName = document.getString("nombres") ?: ""
+                        lastName = document.getString("apellidos") ?: ""
+                    }
+                    isLoading = false // Termina la carga
+                }
+                .addOnFailureListener {
+                    isLoading = false
+                }
+        }
+    }
+
+    // Mostrar un indicador de carga mientras obtenemos los datos
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else {
+            Scaffold(
+                bottomBar = { CustomBottomNavBar(navController = navController) } // Añadido el CustomBottomNavBar
+            ) { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFF8EFE8))
+                        .padding(paddingValues)
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.pfp),
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.width(60.dp)
+                        )
+                        Column(modifier = Modifier.padding(40.dp)) {
+                            // Mostrar los datos del usuario
+                            Text(
+                                text = "$firstName $lastName", // Mostramos nombre completo
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 25.sp
+                            )
+                        }
+                    }
+
+                    // Agregar las tarjetas de actividades, logros, historial, etc.
+                    ProximasActivdadesCard()
+                    LogrosCard()
+                    HistorialCard()
                 }
             }
-
-            ProximasActivdadesCard()
-            LogrosCard()
-            HistorialCard()
         }
     }
 }
+
+
 
 @Composable
 fun ProximasActivdadesCard(modifier: Modifier = Modifier) {
