@@ -47,6 +47,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 data class FutureActivity(
     val numActividad: String,
@@ -58,6 +61,31 @@ data class PastActivity(
     val numActividad: String,
     val fechaActividad: String
 )
+
+data class UserProfile(val nombres: String?, val apellidos: String?)
+
+suspend fun getUserProfileFromFirestore(userId: String): UserProfile? {
+    return withContext(Dispatchers.IO) {
+        try {
+            val documentSnapshot = FirebaseFirestore.getInstance()
+                .collection("usuarios")
+                .document(userId)
+                .get()
+                .await()
+
+            return@withContext if (documentSnapshot.exists()) {
+                val nombres = documentSnapshot.getString("nombres")
+                val apellidos = documentSnapshot.getString("apellidos")
+                UserProfile(nombres, apellidos)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            println("Error al obtener perfil: ${e.message}")
+            null
+        }
+    }
+}
 
 @Composable
 fun PantallaPerfil(navController: NavHostController) {
@@ -73,22 +101,13 @@ fun PantallaPerfil(navController: NavHostController) {
     // Llamada a Firestore para obtener los datos del usuario
     LaunchedEffect(userId) {
         if (userId != null) {
-            // Consultar Firestore para obtener los datos del usuario
-            FirebaseFirestore.getInstance()
-                .collection("usuarios")
-                .document(userId)
-                .get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        // Recuperamos los campos nombres y apellidos
-                        firstName = document.getString("nombres") ?: ""
-                        lastName = document.getString("apellidos") ?: ""
-                    }
-                    isLoading = false // Termina la carga
-                }
-                .addOnFailureListener {
-                    isLoading = false
-                }
+            // Obtener datos del usuario desde Firestore
+            val userProfile = getUserProfileFromFirestore(userId)
+            if (userProfile != null) {
+                firstName = userProfile.nombres ?: ""
+                lastName = userProfile.apellidos ?: ""
+            }
+            isLoading = false // Termina la carga
         }
     }
 
