@@ -21,8 +21,45 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 private const val s = "Usuario registrado exitosamente."
+// Función suspendida para registrar al usuario
+suspend fun registerUser(contactInfo: String, password: String, firstName: String, lastName: String) {
+    // Usamos suspendCancellableCoroutine para manejar el flujo de Firebase en una corutina
+    suspendCancellableCoroutine<Unit> { continuation ->
+        FirebaseAuth.getInstance()
+            .createUserWithEmailAndPassword(contactInfo, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = FirebaseAuth.getInstance().currentUser
+                    if (user != null) {
+                        val db = FirebaseFirestore.getInstance()
+                        val userData = hashMapOf(
+                            "nombres" to firstName,
+                            "apellidos" to lastName
+                        )
+                        db.collection("usuarios")
+                            .document(user.uid)
+                            .set(userData)
+                            .addOnSuccessListener {
+                                continuation.resume(Unit)  // Continuamos cuando se haya guardado el usuario
+                            }
+                            .addOnFailureListener { e ->
+                                continuation.resumeWithException(e)  // Reanudamos con un error si ocurre
+                            }
+                    }
+                } else {
+                    task.exception?.let { continuation.resumeWithException(it) }
+                }
+            }
+    }
+}
+
 
 @Composable
 fun RegistrationScreen(
@@ -90,6 +127,8 @@ fun RegistrationScreen(
         }
         return confirmPasswordError.isEmpty()
     }
+    // Función suspendida para manejar el registro y la navegación
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -254,20 +293,18 @@ fun RegistrationScreen(
 
         Button(
             onClick = {
-                if (termsAccepted && validateEmail() && validateBirthDate() && validatePassword() && validateConfirmPassword()) {                    // Aquí va el código para registrar al usuario en Firebase Authentication
-                    FirebaseAuth.getInstance()
-                        .createUserWithEmailAndPassword(contactInfo, password)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                // El registro fue exitoso
-                                println("Usuario registrado exitosamente.")
-                                // Navegar a la pantalla feed después de un registro exitoso
-                                navController.navigate("login") // Pues que regrese al login para que ahora si pueda iniciar sesion
-                            } else {
-                                // Si el registro falla
-                                println("Error al registrar usuario: ${task.exception?.message}")
-                            }
+                if (termsAccepted && validateEmail() && validateBirthDate() && validatePassword() && validateConfirmPassword()) {
+                    scope.launch {
+                        try {
+                            // Llamada a la función suspendida para registrar al usuario
+                            registerUser(contactInfo, password, firstName, lastName)
+                            // Si el registro es exitoso, navegamos a la pantalla de login
+                            navController.navigate("login")
+                        } catch (e: Exception) {
+                            // Aquí puedes manejar el error, por ejemplo, mostrar un mensaje en la UI
+                            println("Error al registrar usuario: ${e.message}")
                         }
+                    }
                 } else {
                     println("Errores en el formulario")
                 }

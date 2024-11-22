@@ -87,4 +87,6 @@
     //Errores o aciertos
 
     <string name="exito">Usuario registrado exitosamente.</string>
+    <string name="first_name_label">Nombres</string>
+    <string name="last_name_label">Apellidos</string>
 </resources>

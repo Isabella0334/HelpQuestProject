@@ -23,10 +23,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 data class FutureActivity(
     val numActividad: String,
@@ -51,49 +62,109 @@ data class PastActivity(
     val fechaActividad: String
 )
 
-@Composable
-fun PantallaPerfil(navController: NavHostController) {
-    Scaffold(
-        bottomBar = { CustomBottomNavBar(navController = navController) } // Añadido el CustomBottomNavBar
-    ) { paddingValues ->
+data class UserProfile(val nombres: String?, val apellidos: String?)
+//haremos una corutina para jalar los datos del nombre y apellidos de firebase
+suspend fun getUserProfileFromFirestore(userId: String): UserProfile? {
+    return withContext(Dispatchers.IO) {
+        try {
+            val documentSnapshot = FirebaseFirestore.getInstance()
+                .collection("usuarios")
+                .document(userId)
+                .get()
+                .await()
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFF8EFE8))
-                .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.pfp),
-                    contentDescription = "Foto de perfil",
-                    modifier = Modifier.width(60.dp)
-                )
-                Column(modifier = Modifier.padding(40.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.nombre_usuario),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 25.sp
-                    )
-                    Text(text = stringResource(id = R.string.info_usuario))
-                }
+            return@withContext if (documentSnapshot.exists()) {
+                val nombres = documentSnapshot.getString("nombres")
+                val apellidos = documentSnapshot.getString("apellidos")
+                UserProfile(nombres, apellidos)
+            } else {
+                null
             }
-
-            ProximasActivdadesCard()
-            LogrosCard()
-            HistorialCard()
+        } catch (e: Exception) {
+            println("Error al obtener perfil: ${e.message}")
+            null
         }
     }
 }
+
+@Composable
+fun PantallaPerfil(navController: NavHostController) {
+    // Estados para los datos del usuario
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(true) } // Indicador de carga
+
+    // Obtener el uid del usuario autenticado
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val userId = currentUser?.uid
+
+    // Llamada a Firestore para obtener los datos del usuario
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            // Obtener datos del usuario desde Firestore
+            val userProfile = getUserProfileFromFirestore(userId)
+            if (userProfile != null) {
+                firstName = userProfile.nombres ?: ""
+                lastName = userProfile.apellidos ?: ""
+            }
+            isLoading = false // Termina la carga
+        }
+    }
+
+    // Mostrar un indicador de carga mientras obtenemos los datos
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else {
+            Scaffold(
+                bottomBar = { CustomBottomNavBar(navController = navController) } // Añadido el CustomBottomNavBar
+            ) { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFF8EFE8))
+                        .padding(paddingValues)
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.pfp),
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.width(60.dp)
+                        )
+                        Column(modifier = Modifier.padding(40.dp)) {
+                            // Mostrar los datos del usuario
+                            Text(
+                                text = "$firstName $lastName", // Mostramos nombre completo
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 25.sp
+                            )
+                        }
+                    }
+
+                    // Agregar las tarjetas de actividades, logros, historial, etc.
+                    ProximasActivdadesCard()
+                    LogrosCard()
+                    HistorialCard()
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun ProximasActivdadesCard(modifier: Modifier = Modifier) {
