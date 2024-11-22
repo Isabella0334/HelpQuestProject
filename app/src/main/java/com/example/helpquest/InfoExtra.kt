@@ -143,9 +143,9 @@ fun VolunteerTaskInfo(location: String, duration: String, taskType: String, skil
             modifier = Modifier.fillMaxWidth()
         ) {
             Image(
-                painter = painterResource(id = R.drawable.location_icon),  // Asegúrate de tener location_icon en drawable
+                painter = painterResource(id = R.drawable.location_icon),  
                 contentDescription = "Ubicación",
-                modifier = Modifier.size(24.dp)  // Tamaño ajustable
+                modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))  // Espaciado entre el ícono y el texto
             Text(text = location, fontSize = 14.sp, color = Color.Gray)
