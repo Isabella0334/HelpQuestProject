@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,48 +42,20 @@ import org.osmdroid.views.overlay.Marker
 
 // de nativo a firebase
 @Composable
-fun InteractiveMap() {
+fun InteractiveMap(geoPoint: GeoPoint) {
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
-    val geoPoints = remember { mutableStateListOf<Pair<GeoPoint, String>>() } // marcador de coordenadas geopoint
 
-    // conexión hacia firebase / firestore
-    val db = FirebaseFirestore.getInstance()
+    // Centraliza el mapa en el geoPoint que se pasa
+    LaunchedEffect(geoPoint) {
+        mapView.controller.setZoom(15)
+        mapView.controller.setCenter(geoPoint)
 
-    LaunchedEffect(Unit) {
-        db.collection("activity")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-
-                    val geoPoint = document.getGeoPoint("coordenadas") // geopoint no array
-                    val descripcion = document.getString("descripcion")
-
-                    if (geoPoint != null && descripcion != null) {
-                        geoPoints.add(Pair(GeoPoint(geoPoint.latitude, geoPoint.longitude), descripcion))
-                        Log.d("Firebase", "GeoPoint: ${geoPoint.latitude}, ${geoPoint.longitude}, Descripción: $descripcion")
-                    }
-                }
-                // centraliza la dirección exacta sin marker
-                if (geoPoints.isNotEmpty()) {
-                    mapView.controller.setZoom(15)
-                    mapView.controller.setCenter(geoPoints[0].first)
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.e("Firebase", "Error obteniendo coordenadas: ", exception)
-            }
-    }
-
-    // marker problemas con geopoint
-    LaunchedEffect(geoPoints) {
-        geoPoints.forEach { (point, description) ->
-            val marker = Marker(mapView).apply {
-                position = point
-                title = description
-            }
-            mapView.overlays.add(marker)
+        val marker = Marker(mapView).apply {
+            position = geoPoint
+            title = "Ubicación"
         }
+        mapView.overlays.add(marker)
     }
 
     AndroidView(
@@ -95,8 +68,31 @@ fun InteractiveMap() {
 
 @Composable
 fun ExploreScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val geoPoints = remember { mutableStateListOf<Pair<GeoPoint, String>>() }
+    val db = FirebaseFirestore.getInstance()
+
+    // Recuperar datos de Firebase
+    LaunchedEffect(Unit) {
+        db.collection("activity")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val geoPoint = document.getGeoPoint("coordenadas")
+                    val descripcion = document.getString("descripcion")
+
+                    if (geoPoint != null && descripcion != null) {
+                        geoPoints.add(Pair(GeoPoint(geoPoint.latitude, geoPoint.longitude), descripcion))
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firebase", "Error obteniendo coordenadas: ", exception)
+            }
+    }
+
     Scaffold(
-        bottomBar = { CustomBottomNavBar(navController = navController) } // Se utiliza el mismo navbar personalizado
+        bottomBar = { CustomBottomNavBar(navController = navController) }
     ) { paddingValues ->
 
         Column(
@@ -107,74 +103,68 @@ fun ExploreScreen(navController: NavHostController) {
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-
-            // Tarjeta con el mapa interactivo de osmdroid
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(400.dp)
-                    .padding(16.dp)
-            ) {
-                InteractiveMap()
-            }
-
-            
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Column(
+            // Mostrar tarjetas dinámicamente con datos de Firebase
+            geoPoints.forEachIndexed { index, pair ->
+                // Tarjeta para cada actividad de carrera
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
                     modifier = Modifier
+                        .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.title),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Actividad ${index + 1}", // Título de la tarjeta
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
 
-                    Text(
-                        text = stringResource(id = R.string.body_text),
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
+                        Text(
+                            text = pair.second, // Descripción de la actividad
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Button(
-                            onClick = { navController.navigate("Info") },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34C85A))
+                        // Mapa dentro de la tarjeta para cada actividad
+                        Card(
+                            shape = RoundedCornerShape(16.dp),
+                            elevation = CardDefaults.cardElevation(8.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp) // Ajuste de tamaño del mapa para la actividad
                         ) {
-                            Text(stringResource(id = R.string.more_info), color = Color.White)
+                            // Aquí pasamos el geoPoint de la actividad actual
+                            InteractiveMap(geoPoint = pair.first) // Pasa el geoPoint de cada actividad
                         }
 
-                        Button(
-                            onClick = { navController.navigate("Formulario") },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500))
+                        // Espaciado adicional entre el mapa y los botones
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Text(stringResource(id = R.string.apply), color = Color.White)
+                            Button(
+                                onClick = { navController.navigate("Info") },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34C85A))
+                            ) {
+                                Text(stringResource(id = R.string.more_info), color = Color.White)
+                            }
+
+                            Button(
+                                onClick = { navController.navigate("Formulario") },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500))
+                            ) {
+                                Text(stringResource(id = R.string.apply), color = Color.White)
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ExploreScreenPreview() {
-    ExploreScreen(navController = rememberNavController())
 }
