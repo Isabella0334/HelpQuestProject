@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 private const val s = "Usuario registrado exitosamente."
 
@@ -254,17 +255,32 @@ fun RegistrationScreen(
 
         Button(
             onClick = {
-                if (termsAccepted && validateEmail() && validateBirthDate() && validatePassword() && validateConfirmPassword()) {                    // Aquí va el código para registrar al usuario en Firebase Authentication
+                if (termsAccepted && validateEmail() && validateBirthDate() && validatePassword() && validateConfirmPassword()) {
+                    // Registro del usuario en Firebase Authentication
                     FirebaseAuth.getInstance()
                         .createUserWithEmailAndPassword(contactInfo, password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                // El registro fue exitoso
-                                println("Usuario registrado exitosamente.")
-                                // Navegar a la pantalla feed después de un registro exitoso
-                                navController.navigate("login") // Pues que regrese al login para que ahora si pueda iniciar sesion
+                                val user = FirebaseAuth.getInstance().currentUser
+                                if (user != null) {
+                                    val db = FirebaseFirestore.getInstance()
+                                    val userData = hashMapOf(
+                                        "nombres" to firstName,
+                                        "apellidos" to lastName
+                                    )
+
+                                    db.collection("usuarios")
+                                        .document(user.uid)
+                                        .set(userData)
+                                        .addOnSuccessListener {
+                                            // Pues nos regresamos al login
+                                            navController.navigate("login")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            println("Error al guardar los datos: ${e.message}")
+                                        }
+                                }
                             } else {
-                                // Si el registro falla
                                 println("Error al registrar usuario: ${task.exception?.message}")
                             }
                         }

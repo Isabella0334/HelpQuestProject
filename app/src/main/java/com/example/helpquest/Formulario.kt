@@ -67,7 +67,8 @@ import com.google.firebase.firestore.SetOptions
 @Composable
 fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostController) {
     // Estado para los campos del formulario
-    var nombreCompleto by remember { mutableStateOf("") }
+    var nombres by remember { mutableStateOf("") }
+    var apellidos by remember { mutableStateOf("") }
     var edad by remember { mutableStateOf("") }
     var documentoIdentidad by remember { mutableStateOf("") }
     var terminosAceptados by remember { mutableStateOf(false) }
@@ -78,7 +79,6 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
     val user = FirebaseAuth.getInstance().currentUser
     val db = FirebaseFirestore.getInstance()
 
-
     LaunchedEffect(user?.uid) {
         if (user != null) {
             // Si el usuario está autenticado, obtenemos los datos de Firestore
@@ -86,7 +86,8 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
             docRef.get().addOnSuccessListener { document ->
                 if (document.exists()) {
                     // Si los datos existen, los cargamos en los campos
-                    nombreCompleto = document.getString("nombre_completo") ?: ""
+                    nombres = document.getString("nombres") ?: ""
+                    apellidos = document.getString("apellidos") ?: ""
                     edad = document.getLong("edad")?.toString() ?: ""
                     documentoIdentidad = document.getLong("documento_identidad")?.toString() ?: ""
                     terminosAceptados = document.getBoolean("terminos_aceptados") ?: false
@@ -117,7 +118,8 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
 
             // Crear un mapa con los datos del formulario
             val usuarioData = hashMapOf(
-                "nombre_completo" to if (nombreCompleto.isNotBlank()) nombreCompleto else null,
+                "nombres" to if (nombres.isNotBlank()) nombres else null,
+                "apellidos" to if (apellidos.isNotBlank()) apellidos else null,
                 "edad" to edadInt,
                 "documento_identidad" to documentoInt,
                 "terminos_aceptados" to terminosAceptados
@@ -171,11 +173,19 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
                 }
             }
 
-            // Nombre Completo
+            // Campo para Nombres
             OutlinedTextField(
-                value = nombreCompleto,
-                onValueChange = { nombreCompleto = it },
-                label = { Text(stringResource(id = R.string.full_name_label)) },
+                value = nombres,
+                onValueChange = { nombres = it },
+                label = { Text(stringResource(id = R.string.first_name_label)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Campo para Apellidos
+            OutlinedTextField(
+                value = apellidos,
+                onValueChange = { apellidos = it },
+                label = { Text(stringResource(id = R.string.last_name_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -225,7 +235,8 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
             // Botón de enviar, habilitado solo si los términos son aceptados
             EnviarBoton(
                 onClick = { enviarDatos() },
-                enabled = nombreCompleto.isNotEmpty() &&
+                enabled = nombres.isNotEmpty() &&
+                        apellidos.isNotEmpty() &&
                         edad.isNotEmpty() &&
                         documentoIdentidad.isNotEmpty() &&
                         terminosAceptados
@@ -264,4 +275,3 @@ fun EnviarBoton(onClick: () -> Unit, enabled: Boolean) {
         Text(text = stringResource(R.string.send_button_text), color = Color.White)
     }
 }
-
