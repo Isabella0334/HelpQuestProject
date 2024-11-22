@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -20,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+
+private const val s = "Usuario registrado exitosamente."
 
 @Composable
 fun RegistrationScreen(
@@ -98,7 +101,7 @@ fun RegistrationScreen(
     ) {
         // Título
         Text(
-            text = "Registro",
+            text = stringResource(id = R.string.registration_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -112,7 +115,7 @@ fun RegistrationScreen(
         OutlinedTextField(
             value = firstName,
             onValueChange = { firstName = it },
-            label = { Text("Nombres") },
+            label = { Text(stringResource(id = R.string.label_first_name)) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -121,7 +124,7 @@ fun RegistrationScreen(
         OutlinedTextField(
             value = lastName,
             onValueChange = { lastName = it },
-            label = { Text("Apellidos") },
+            label = { Text(stringResource(id = R.string.label_last_name)) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -131,7 +134,7 @@ fun RegistrationScreen(
         OutlinedTextField(
             value = birthDate,
             onValueChange = { birthDate = it },
-            label = { Text("Fecha de Nacimiento") },
+            label = { Text(stringResource(id = R.string.label_birth_date)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             isError = birthDateError.isNotEmpty()
@@ -151,7 +154,7 @@ fun RegistrationScreen(
         OutlinedTextField(
             value = contactInfo,
             onValueChange = { contactInfo = it; emailError = "" }, // Limpiar error al cambiar valor
-            label = { Text("Correo electrónico") },
+            label = { Text(stringResource(id = R.string.label_email)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             isError = emailError.isNotEmpty()
@@ -171,7 +174,7 @@ fun RegistrationScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Contraseña") },
+            label = { Text(stringResource(id = R.string.label_password)) },
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             singleLine = true,
             isError = passwordError.isNotEmpty(),
@@ -180,9 +183,9 @@ fun RegistrationScreen(
                     Icon(
                         imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = if (isPasswordVisible)
-                            "Ocultar contraseña"
+                            stringResource(id = R.string.password_hide)
                         else
-                            "Mostrar contraseña"
+                            stringResource(id = R.string.password_show)
                     )
                 }
             },
@@ -204,7 +207,7 @@ fun RegistrationScreen(
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            label = { Text("Confirmar Contraseña") },
+            label = { Text(stringResource(id = R.string.label_confirm_password)) },
             visualTransformation = if (isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             singleLine = true,
             isError = confirmPasswordError.isNotEmpty(),
@@ -213,9 +216,9 @@ fun RegistrationScreen(
                     Icon(
                         imageVector = if (isConfirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = if (isConfirmPasswordVisible)
-                            "Ocultar contraseña"
+                            stringResource(id = R.string.password_hide)
                         else
-                            "Mostrar contraseña"
+                            stringResource(id = R.string.password_show)
                     )
                 }
             },
@@ -242,7 +245,7 @@ fun RegistrationScreen(
                 onCheckedChange = { termsAccepted = it }
             )
             Text(
-                text = "Acepto los términos y condiciones",
+                text = stringResource(id = R.string.label_terms_conditions),
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -273,7 +276,7 @@ fun RegistrationScreen(
             enabled = firstName.isNotEmpty() && lastName.isNotEmpty() &&
                     birthDate.isNotEmpty() && contactInfo.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty() && termsAccepted
         ) {
-            Text(text = "Registrarse")
+            Text(text = stringResource(id = R.string.btn_register))
         }
     }
 }
