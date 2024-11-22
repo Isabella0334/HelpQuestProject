@@ -1,14 +1,6 @@
 package com.example.helpquest
 
-import android.os.Bundle
-import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,25 +40,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalMapOf
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
+import com.uvg.example.lab06api.FirebaseRepository
+import kotlinx.coroutines.launch
 
-
-// Esta es la función del formulario que se verá dentro de la aplicación
 @Composable
-fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostController) {
-    // Estado para los campos del formulario
+fun FormularioScreen(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    repository: FirebaseRepository = FirebaseRepository()
+) {
+    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+
     var nombres by remember { mutableStateOf("") }
     var apellidos by remember { mutableStateOf("") }
     var edad by remember { mutableStateOf("") }
@@ -75,71 +63,49 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
     var edadError by remember { mutableStateOf("") }
     var documentoError by remember { mutableStateOf("") }
 
-    // Obtener el usuario actual
-    val user = FirebaseAuth.getInstance().currentUser
-    val db = FirebaseFirestore.getInstance()
-
-    LaunchedEffect(user?.uid) {
-        if (user != null) {
-            // Si el usuario está autenticado, obtenemos los datos de Firestore
-            val docRef = db.collection("usuarios").document(user.uid)
-            docRef.get().addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // Si los datos existen, los cargamos en los campos
-                    nombres = document.getString("nombres") ?: ""
-                    apellidos = document.getString("apellidos") ?: ""
-                    edad = document.getLong("edad")?.toString() ?: ""
-                    documentoIdentidad = document.getLong("documento_identidad")?.toString() ?: ""
-                    terminosAceptados = document.getBoolean("terminos_aceptados") ?: false
-                }
-            }.addOnFailureListener {
-                // Si hubo un error al cargar los datos, los campos permanecerán vacíos
-                Log.e("Formulario", "Error al cargar los datos del usuario")
-            }
+    // Obtener los datos iniciales del usuario
+    LaunchedEffect(Unit) {
+        val datosUsuario = repository.obtenerDatosUsuario()
+        datosUsuario?.let { datos ->
+            nombres = datos["nombres"] as? String ?: ""
+            apellidos = datos["apellidos"] as? String ?: ""
+            edad = (datos["edad"] as? Long)?.toString() ?: ""
+            documentoIdentidad = (datos["documento_identidad"] as? Long)?.toString() ?: ""
+            terminosAceptados = datos["terminos_aceptados"] as? Boolean ?: false
         }
     }
 
-    // Esta función enviará los datos a Firestore
-    fun enviarDatos() {
-        if (user != null) {
-            // Validar que la edad sea un número válido
-            val edadInt = edad.toIntOrNull()
-            if (edadInt == null || edadInt <= 0 || edadInt >= 200) {
-                edadError = "Por favor ingresa una edad válida"
-                return // Si la edad no es válida, no enviamos el formulario
-            }
+    // Función para enviar datos
+    suspend fun enviarDatos() {
+        val edadInt = edad.toIntOrNull()
+        if (edadInt == null || edadInt <= 0 || edadInt >= 200) {
+            edadError = "Por favor ingresa una edad válida"
+            return
+        }
 
-            // Validar que el documento de identidad sea un número válido
-            val documentoInt = documentoIdentidad.toIntOrNull()
-            if (documentoInt == null || documentoInt <= 0) {
-                documentoError = "Por favor ingresa un documento de identidad válido"
-                return // Si el documento no es válido, no enviamos el formulario
-            }
+        val documentoInt = documentoIdentidad.toIntOrNull()
+        if (documentoInt == null || documentoInt <= 0) {
+            documentoError = "Por favor ingresa un documento de identidad válido"
+            return
+        }
 
-            // Crear un mapa con los datos del formulario
-            val usuarioData = hashMapOf(
-                "nombres" to if (nombres.isNotBlank()) nombres else null,
-                "apellidos" to if (apellidos.isNotBlank()) apellidos else null,
-                "edad" to edadInt,
-                "documento_identidad" to documentoInt,
-                "terminos_aceptados" to terminosAceptados
-            )
+        val usuarioData = mapOf(
+            "nombres" to nombres.ifBlank { "" },
+            "apellidos" to apellidos.ifBlank { "" },
+            "edad" to edadInt,
+            "documento_identidad" to documentoInt,
+            "terminos_aceptados" to terminosAceptados
+        )
 
-            // Actualizar el documento del usuario con el UID
-            db.collection("usuarios")
-                .document(user.uid) // Documento identificado por el UID de Firebase Authentication
-                .set(usuarioData, SetOptions.merge()) // Usamos merge para no sobrescribir otros datos
-                .addOnSuccessListener {
-                    // Si el formulario se envía correctamente pues regresamos al feed
-                    navController.navigate("feed")
-                }
-                .addOnFailureListener { exception ->
-                    println("Error al enviar los datos: ${exception.message}")
-                }
+        try {
+            repository.enviarDatosUsuario(usuarioData)
+            navController.navigate("feed")
+        } catch (e: Exception) {
+            println("Error al enviar los datos: ${e.message}")
         }
     }
 
-    // Formulario UI
+    // UI del formulario
     Card(
         modifier = modifier
             .padding(16.dp)
@@ -153,53 +119,29 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Título
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(horizontalAlignment = Alignment.Start) {
-                    Text(
-                        text = stringResource(id = R.string.form_title),
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        text = stringResource(id = R.string.form_description),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = Color.Gray
-                        )
-                    )
-                }
-            }
-
-            // Campo para Nombres
             OutlinedTextField(
                 value = nombres,
                 onValueChange = { nombres = it },
-                label = { Text(stringResource(id = R.string.first_name_label)) },
+                label = { Text("Nombres") },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Campo para Apellidos
             OutlinedTextField(
                 value = apellidos,
                 onValueChange = { apellidos = it },
-                label = { Text(stringResource(id = R.string.last_name_label)) },
+                label = { Text("Apellidos") },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Edad
             OutlinedTextField(
                 value = edad,
-                onValueChange = { edad = it; edadError = "" }, // Limpiar error al cambiar valor
-                label = { Text(stringResource(id = R.string.age_label)) },
+                onValueChange = { edad = it; edadError = "" },
+                label = { Text("Edad") },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 isError = edadError.isNotEmpty()
             )
 
-            // Mostrar error si la edad no es válida
             if (edadError.isNotEmpty()) {
                 Text(
                     text = edadError,
@@ -209,17 +151,15 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
                 )
             }
 
-            // Documento de Identidad
             OutlinedTextField(
                 value = documentoIdentidad,
-                onValueChange = { documentoIdentidad = it; documentoError = "" }, // Limpiar error al cambiar valor
-                label = { Text(stringResource(R.string.identity_document_label)) },
-                modifier = Modifier.fillMaxWidth(),
+                onValueChange = { documentoIdentidad = it; documentoError = "" },
+                label = { Text("Documento de Identidad") },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
                 isError = documentoError.isNotEmpty()
             )
 
-            // Mostrar error si el documento de identidad no es válido
             if (documentoError.isNotEmpty()) {
                 Text(
                     text = documentoError,
@@ -229,21 +169,31 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
                 )
             }
 
-            // Checkbox de términos y condiciones
-            TérminosYCondiciones(terminosAceptados) { terminosAceptados = it }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = terminosAceptados,
+                    onCheckedChange = { terminosAceptados = it }
+                )
+                Text(text = "Acepto los términos y condiciones")
+            }
 
-            // Botón de enviar, habilitado solo si los términos son aceptados
-            EnviarBoton(
-                onClick = { enviarDatos() },
-                enabled = nombres.isNotEmpty() &&
-                        apellidos.isNotEmpty() &&
-                        edad.isNotEmpty() &&
-                        documentoIdentidad.isNotEmpty() &&
-                        terminosAceptados
-            )
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        enviarDatos() // Llama la función suspend dentro de la corutina
+                    }
+                },
+                enabled = nombres.isNotEmpty() && apellidos.isNotEmpty() &&
+                        edad.isNotEmpty() && documentoIdentidad.isNotEmpty() && terminosAceptados,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Enviar")
+            }
         }
     }
 }
+
+
 
 // Función para el checkbox de términos y condiciones
 @Composable

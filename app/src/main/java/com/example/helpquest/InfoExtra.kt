@@ -46,7 +46,8 @@ data class VolunteerTask(
     val taskType: String,
     val skillsNeeded: String,
     val labels: List<Pair<String, Color>>,
-    val navigation: NavHostController
+    val navigation: NavHostController,
+    val imageUrl: String = "",
 )
 
 @Composable
@@ -74,147 +75,21 @@ fun InfoScreen(navController: NavHostController, idA: String?) {
     if (isLoading) {
         CircularProgressIndicator(modifier = Modifier.fillMaxSize())
     } else if (activity != null) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFF8EFE8))
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                elevation = CardDefaults.cardElevation(4.dp),  // Elevación corregida
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White  // Color de fondo de la tarjeta
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    // Imagen de la actividad
-                    Image(
-                        painter = rememberAsyncImagePainter(model = activity!!.Imagen),
-                        contentDescription = "Imagen de la actividad",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentScale = ContentScale.Crop
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Título y creador
-                    Text(
-                        text = activity!!.nombre,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Creado por: ${activity!!.creator}",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Descripción
-                    Text(
-                        text = activity!!.descripcion,
-                        fontSize = 16.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Mostrar el lugar en lugar de las coordenadas
-                    Column(
-                        horizontalAlignment = Alignment.Start,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Ubicación: ${activity!!.lugar}",
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )
-                        // Flecha presionable
-                        IconButton(onClick = { navController.navigate("Explore") }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowForward,  // Flecha hacia la derecha
-                                contentDescription = "Ir a ubicación",
-                                modifier = Modifier.size(24.dp),  // Tamaño ajustable
-                                tint = Color.Gray
-                            )
-                        }
-                    }
-
-                    // Fecha y hora
-                    val formattedDate = activity!!.fechahora.toDate().let { date ->
-                        SimpleDateFormat(
-                            "dd 'de' MMMM 'de' yyyy, hh:mm a",
-                            Locale("es", "ES")
-                        ).format(
-                            date
-                        )
-                    }
-                    Text(
-                        text = "Fecha y hora: $formattedDate",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Tipo de tarea
-                    val tipoColaborativa = if (activity!!.colaborativa) "Colaborativa" else "Solo"
-                    Text(
-                        text = "Tipo de tarea: $tipoColaborativa",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-
-                    // Habilidades requeridas
-                    if (activity!!.skills.isNotEmpty()) {
-                        Text(
-                            text = "Habilidades requeridas: ${activity!!.skills}",
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Etiquetas de actividad
-                    if (activity!!.tipo.isNotEmpty()) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            activity!!.tipo.forEach { label ->
-                                LabelChip(
-                                    label = label,
-                                    color = Color(0xFF4CAF50)
-                                ) // Etiquetas en color verde
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Botón para aplicar
-                    Button(
-                        onClick = { navController.navigate("formulario") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))
-                    ) {
-                        Text(text = "Aplicar")
-                    }
-                }
-            }
-        }
+        VolunteerTaskCard(
+            task = VolunteerTask(
+                imageResId = 0, // Cambiar al recurso predeterminado si no tienes imágenes locales
+                user = activity!!.creator,
+                title = activity!!.nombre,
+                description = activity!!.descripcion,
+                location = activity!!.lugar,
+                duration = activity!!.tiempo,
+                taskType = if (activity!!.colaborativa) "Colaborativa" else "Solo",
+                skillsNeeded = if (activity!!.skills.isNotEmpty()) activity!!.skills else "No especificadas",
+                labels = activity!!.tipo.map { it to Color(0xFF4CAF50) }, // Usa color predeterminado
+                navigation = navController
+            ),
+            navController = navController
+        )
     } else {
         Text(
             text = "No se encontró la actividad.",
@@ -232,43 +107,39 @@ fun VolunteerTaskCard(task: VolunteerTask, navController: NavHostController) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp),  // Elevación corregida
+        elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White  // Color de fondo de la tarjeta
+            containerColor = Color.White
         )
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Sección de imagen y título
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = task.imageResId),
-                    contentDescription = "User Image",
-                    modifier = Modifier
-                        .size(50.dp)
-                        .padding(end = 8.dp),
-                    contentScale = ContentScale.Crop
-                )
-                Column {
-                    Text(text = task.title, fontSize = 18.sp, color = Color.Black)
-                    Text(text = "By: ${task.user}", fontSize = 14.sp, color = Color.Gray)
-                }
-            }
-
-            // Texto descriptivo con "see more..."
-            var expanded by remember { mutableStateOf(false) }
-            val shortenedDescription = if (expanded) task.description else task.description.take(100) + "..."
-
-            Text(text = shortenedDescription, fontSize = 14.sp, color = Color.Gray)
-            ClickableText(
-                text = AnnotatedString(if (expanded) "see less" else "see more..."),
-                onClick = { expanded = !expanded },
-                style = LocalTextStyle.current.copy(color = Color.Blue, fontSize = 14.sp)
+            // Imagen de la actividad
+            Image(
+                painter = if (task.imageUrl.isNotEmpty()) { // Usar la URL de la imagen si está disponible
+                    rememberAsyncImagePainter(model = task.imageUrl) // Cargar la imagen desde la URL
+                } else {
+                    painterResource(id = R.drawable.img_tarjeta1) // Imagen predeterminada si no hay URL
+                },
+                contentDescription = "Imagen de la actividad",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentScale = ContentScale.Crop
             )
 
-            // Sección de información
+            // Título y usuario
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = task.title, fontSize = 18.sp, color = Color.Black)
+                Text(text = "Creado por: ${task.user}", fontSize = 14.sp, color = Color.Gray)
+            }
+
+            // Descripción
+            Text(text = task.description, fontSize = 14.sp, color = Color.Gray)
+
+            // Información adicional
             VolunteerTaskInfo(
                 location = task.location,
                 duration = task.duration,
@@ -277,10 +148,10 @@ fun VolunteerTaskCard(task: VolunteerTask, navController: NavHostController) {
                 navController = navController
             )
 
-            // Etiquetas de voluntariado
+            // Etiquetas
             VolunteerTaskLabels(task.labels)
 
-            // Botón de aplicar
+            // Botón para aplicar
             Button(
                 onClick = { navController.navigate("Formulario") },
                 modifier = Modifier
@@ -293,6 +164,7 @@ fun VolunteerTaskCard(task: VolunteerTask, navController: NavHostController) {
         }
     }
 }
+
 
 @Composable
 fun VolunteerTaskInfo(location: String, duration: String, taskType: String, skills: String, navController: NavHostController) {
