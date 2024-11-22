@@ -41,7 +41,7 @@ data class VolunteerTask(
 @Composable
 fun InfoScreen(navController: NavHostController) {
     val exampleTask = VolunteerTask(
-        imageResId = R.drawable.user_image,  // Asegúrate de tener esta imagen en drawable
+        imageResId = R.drawable.user_image,
         user = "Juan Pérez",
         title = "Limpieza de Playa",
         description = "Ayuda a limpiar las playas de la ciudad. Necesitamos voluntarios comprometidos con el medio ambiente.",

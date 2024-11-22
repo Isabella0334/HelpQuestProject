@@ -40,10 +40,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
-data class ProximaActividad(
+data class FutureActivity(
     val numActividad: String,
     val fechaActividad: String,
     val ubicacionActividad: String
+)
+
+data class PastActivity(
+    val numActividad: String,
+    val fechaActividad: String
 )
 
 @Composable
@@ -75,15 +80,17 @@ fun PantallaPerfil(navController: NavHostController) {
                 )
                 Column(modifier = Modifier.padding(40.dp)) {
                     Text(
-                        text = "Nombre Apellido",
+                        text = stringResource(id = R.string.nombre_usuario),
                         fontWeight = FontWeight.Bold,
                         fontSize = 25.sp
                     )
-                    Text("Género - Edad")
+                    Text(text = stringResource(id = R.string.info_usuario))
                 }
             }
+
             ProximasActivdadesCard()
             LogrosCard()
+            HistorialCard()
         }
     }
 }
@@ -125,18 +132,12 @@ fun ProximasActivdadesCard(modifier: Modifier = Modifier) {
             ) {
                 Button(
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA7CE50)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF28B3E)),
                     onClick = {/* TODO */}
                 ) {
                     Text(stringResource(id = R.string.mas_info))
                 }
-                Button(
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF28B3E)),
-                    onClick = { /*TODO*/ }
-                ) {
-                    Text(stringResource(id = R.string.explorar))
-                }
+
             }
         }
     }
@@ -193,7 +194,7 @@ fun LogrosCard(modifier: Modifier = Modifier) {
             ) {
                 Button(
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA7CE50)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF28B3E)),
                     onClick = {/* TODO */}
                 ) {
                     Text(
@@ -201,23 +202,62 @@ fun LogrosCard(modifier: Modifier = Modifier) {
                         textAlign = TextAlign.Center
                     )
                 }
-                Button(
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF28B3E)),
-                    onClick = { /*TODO*/ }
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.actividades_pasadas),
-                        textAlign = TextAlign.Center
-                    )
-                }
+
             }
         }
     }
 }
 
 @Composable
-fun ProxActividadCard(proxActividad: ProximaActividad) {
+fun HistorialCard(modifier: Modifier = Modifier) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
+        border = BorderStroke(1.dp, Color.Gray)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(horizontalAlignment = Alignment.Start) {
+                    Text(
+                        text = stringResource(id = R.string.historial_actividades),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                }
+            }
+
+            PastActivityList()
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Button(
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF28B3E)), // 0xFFF28B3E
+                    onClick = {/* TODO */}
+                ) {
+                    Text(stringResource(id = R.string.mas_info))
+                }
+
+            }
+        }
+    }
+}
+
+@Composable
+fun ProxActividadCard(proxActividad: FutureActivity) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -256,15 +296,15 @@ fun ProxActividadCard(proxActividad: ProximaActividad) {
 @Composable
 fun ProximaActividadList() {
     val proximasActividades = listOf(
-        ProximaActividad(
+        FutureActivity(
             numActividad = stringResource(id = R.string.prox_actividad1),
             fechaActividad = stringResource(id = R.string.fecha_actividad),
-            ubicacionActividad = stringResource(id = R.string.ubicacion_avticidad)
+            ubicacionActividad = stringResource(id = R.string.ubicacion_actividad)
         ),
-        ProximaActividad(
+        FutureActivity(
             numActividad = stringResource(id = R.string.prox_actividad2),
             fechaActividad = stringResource(id = R.string.fecha_actividad),
-            ubicacionActividad = stringResource(id = R.string.ubicacion_avticidad)
+            ubicacionActividad = stringResource(id = R.string.ubicacion_actividad)
         )
     )
 
@@ -275,8 +315,57 @@ fun ProximaActividadList() {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun PantallaPerfilPreview() {
-    PantallaPerfil(navController = rememberNavController())
+fun PastActivityCard(pastActivity: PastActivity) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFD6EBC5))
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(text = pastActivity.numActividad)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.DateRange,
+                    contentDescription = "Date"
+                )
+                Text(text = pastActivity.fechaActividad)
+            }
+        }
+    }
 }
+
+@Composable
+fun PastActivityList() {
+    val actividadesPasadas = listOf(
+        PastActivity(
+            numActividad = stringResource(id = R.string.actividad_pasada1),
+            fechaActividad = stringResource(id = R.string.fecha_actividad)
+        ),
+        PastActivity(
+            numActividad = stringResource(id = R.string.actividad_pasada2),
+            fechaActividad = stringResource(id = R.string.fecha_actividad)
+        ),
+        PastActivity(
+            numActividad = stringResource(id = R.string.actividad_pasada3),
+            fechaActividad = stringResource(id = R.string.fecha_actividad)
+        )
+    )
+
+    Column(modifier = Modifier) {
+        actividadesPasadas.forEach { pastActivity ->
+            PastActivityCard(pastActivity = pastActivity)
+        }
+    }
+}
+

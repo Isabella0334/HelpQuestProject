@@ -2,25 +2,29 @@
     <string name="app_name">HelpQuest</string>
 
     //Strings para pantalla Formulario.kt
-    <string name="form_title">Application Form</string>
-    <string name="form_description">Necessary information for your application</string>
-    <string name="full_name_label">Full name</string>
-    <string name="age_label">Age</string>
-    <string name="identity_document_label">Identity document</string>
-    <string name="terms_checkbox_text">I accept the terms</string>
-    <string name="send_button_text">Send my application</string>
-    <string name="terms_and_conditions">Read our T&amp;Cs</string>
+    <string name="form_title">Formulario de aplicación</string>
+    <string name="form_description">Informacion necesario para tu aplicación</string>
+    <string name="full_name_label">Nombre completo</string>
+    <string name="age_label">Edad</string>
+    <string name="identity_document_label">Documento de identidad</string>
+    <string name="terms_checkbox_text">Acepto los términos y condiciones</string>
+    <string name="send_button_text">Enviar mi aplicación</string>
+    <string name="terms_and_conditions">Lee nuestros términos y condiciones</string>
 
     //String pantalla profile.kt
-    <string name="prox_actividades">Próximas actividades</string>
+    <string name="prox_actividades">Próximas Actividades</string>
     <string name="logros">Logros</string>
+    <string name="historial_actividades">Historial de Actividades</string>
     <string name="mas_info">Más información</string>
-    <string name="explorar">Explorar</string>
     <string name="fecha_actividad">Fecha</string>
-    <string name="ubicacion_avticidad">Ubicación</string>
-    <string name="actividades_pasadas">Actividades pasadas</string>
-    <string name="prox_actividad1">Actividad 1</string>
-    <string name="prox_actividad2">Actividad 2</string>
+    <string name="ubicacion_actividad">Ubicación</string>
+    <string name="prox_actividad1">Próxima Actividad 1</string>
+    <string name="prox_actividad2">Próxima Actividad 2</string>
+    <string name="actividad_pasada1">Actividad Pasada 1</string>
+    <string name="actividad_pasada2">Actividad Pasada 2</string>
+    <string name="actividad_pasada3">Actividad Pasada 3</string>
+    <string name="nombre_usuario">Nombre Apellido</string>
+    <string name="info_usuario">Género - Edad</string>
 
     // Strings pantalla de Explore.kt
         <string name="back">Back</string>
@@ -38,6 +42,8 @@
     <string name="password_label">Password</string>
     <string name="login_button_text">Log in</string>
     <string name="register_button_text">Register</string>
+    <string name="toggle_password_visibility_show">Mostrar contraseña</string>
+    <string name="toggle_password_visibility_hide">Ocultar contraseña</string>
 
     //String pantalla Feed.kt
     <string name="image_activity">Imagen de la actividad</string>
@@ -53,5 +59,32 @@
     <string name="uvg_race_desc">¡Ya comenzamos las inscripciones para la Carrera UVG! Esta tiene como objetivo apoyar estudiantes de los tres campus de la Universidad del Valle de Guatemala (UVG).</string>
     <string name="uvg_race_time">⏰ 1h - 3h</string>
 
+    //Strings pantalla register
+    <!-- Título de la pantalla -->
+    <string name="registration_title">Registro</string>
 
+    <!-- Etiquetas de los campos -->
+    <string name="label_first_name">Nombres</string>
+    <string name="label_last_name">Apellidos</string>
+    <string name="label_birth_date">Fecha de Nacimiento</string>
+    <string name="label_email">Correo electrónico</string>
+    <string name="label_password">Contraseña</string>
+    <string name="label_confirm_password">Confirmar Contraseña</string>
+    <string name="label_terms_conditions">Acepto los términos y condiciones</string>
+
+    <!-- Texto del botón -->
+    <string name="btn_register">Registrarse</string>
+
+    <!-- Textos del error de validación -->
+    <string name="error_email_invalid">Por favor ingresa un correo válido</string>
+    <string name="error_birth_date_invalid">Por favor ingresa una fecha válida (dd-MM-yyyy)</string>
+    <string name="error_password_length">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="error_password_digit">La contraseña debe contener al menos un número</string>
+    <string name="error_password_letter">La contraseña debe contener al menos una letra</string>
+    <string name="error_password_match">Las contraseñas no coinciden</string>
+    <string name="password_show">Mostrar Contraseña\n</string>
+    <string name="password_hide">Ocultar contraseña</string>
+    //Errores o aciertos
+
+    <string name="exito">Usuario registrado exitosamente.</string>
 </resources>
