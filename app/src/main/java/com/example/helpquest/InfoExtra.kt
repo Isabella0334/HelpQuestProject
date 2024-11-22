@@ -1,15 +1,20 @@
 package com.example.helpquest
 
+import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -21,9 +26,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 
 data class VolunteerTask(
     val imageResId: Int,
@@ -39,26 +50,179 @@ data class VolunteerTask(
 )
 
 @Composable
-fun InfoScreen(navController: NavHostController) {
-    val exampleTask = VolunteerTask(
-        imageResId = R.drawable.user_image,
-        user = "Juan Pérez",
-        title = "Limpieza de Playa",
-        description = "Ayuda a limpiar las playas de la ciudad. Necesitamos voluntarios comprometidos con el medio ambiente.",
-        location = "Playa Central, Ciudad",
-        duration = "2 horas - 1 día",
-        taskType = "Tarea colaborativa",
-        skillsNeeded = "Trabajo en equipo, Conciencia ambiental",
-        labels = listOf(
-            "Medio Ambiente" to Color.Green,
-            "Voluntariado" to Color.Blue,
-            "Comunidad" to Color.Magenta
-        ),
-        navigation = navController
-    )
+fun InfoScreen(navController: NavHostController, idA: String?) {
+    val db = FirebaseFirestore.getInstance()
+    var activity by remember { mutableStateOf<VolunteerActivity?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
 
-    // Llamar a VolunteerTaskCard con el objeto de ejemplo
-    VolunteerTaskCard(task = exampleTask, navController)
+    // Recuperar los datos desde Firestore
+    LaunchedEffect(idA) {
+        if (idA != null) {
+            db.collection("activity").document(idA)
+                .get()
+                .addOnSuccessListener { document ->
+                    activity = document.toObject(VolunteerActivity::class.java)
+                    isLoading = false
+                }
+                .addOnFailureListener { exception ->
+                    isLoading = false
+                    Log.e("FirestoreError", "Error al cargar la actividad", exception)
+                }
+        }
+    }
+
+    if (isLoading) {
+        CircularProgressIndicator(modifier = Modifier.fillMaxSize())
+    } else if (activity != null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFF8EFE8))
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                elevation = CardDefaults.cardElevation(4.dp),  // Elevación corregida
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White  // Color de fondo de la tarjeta
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    // Imagen de la actividad
+                    Image(
+                        painter = rememberAsyncImagePainter(model = activity!!.Imagen),
+                        contentDescription = "Imagen de la actividad",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Título y creador
+                    Text(
+                        text = activity!!.nombre,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Creado por: ${activity!!.creator}",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Descripción
+                    Text(
+                        text = activity!!.descripcion,
+                        fontSize = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Mostrar el lugar en lugar de las coordenadas
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Ubicación: ${activity!!.lugar}",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                        // Flecha presionable
+                        IconButton(onClick = { navController.navigate("Explore") }) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,  // Flecha hacia la derecha
+                                contentDescription = "Ir a ubicación",
+                                modifier = Modifier.size(24.dp),  // Tamaño ajustable
+                                tint = Color.Gray
+                            )
+                        }
+                    }
+
+                    // Fecha y hora
+                    val formattedDate = activity!!.fechahora.toDate().let { date ->
+                        SimpleDateFormat(
+                            "dd 'de' MMMM 'de' yyyy, hh:mm a",
+                            Locale("es", "ES")
+                        ).format(
+                            date
+                        )
+                    }
+                    Text(
+                        text = "Fecha y hora: $formattedDate",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Tipo de tarea
+                    val tipoColaborativa = if (activity!!.colaborativa) "Colaborativa" else "Solo"
+                    Text(
+                        text = "Tipo de tarea: $tipoColaborativa",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+
+                    // Habilidades requeridas
+                    if (activity!!.skills.isNotEmpty()) {
+                        Text(
+                            text = "Habilidades requeridas: ${activity!!.skills}",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Etiquetas de actividad
+                    if (activity!!.tipo.isNotEmpty()) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            activity!!.tipo.forEach { label ->
+                                LabelChip(
+                                    label = label,
+                                    color = Color(0xFF4CAF50)
+                                ) // Etiquetas en color verde
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Botón para aplicar
+                    Button(
+                        onClick = { navController.navigate("formulario") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))
+                    ) {
+                        Text(text = "Aplicar")
+                    }
+                }
+            }
+        }
+    } else {
+        Text(
+            text = "No se encontró la actividad.",
+            modifier = Modifier.fillMaxSize(),
+            fontSize = 16.sp,
+            color = Color.Gray
+        )
+    }
 }
 
 @Composable
@@ -143,9 +307,9 @@ fun VolunteerTaskInfo(location: String, duration: String, taskType: String, skil
             modifier = Modifier.fillMaxWidth()
         ) {
             Image(
-                painter = painterResource(id = R.drawable.location_icon),  // Asegúrate de tener location_icon en drawable
+                painter = painterResource(id = R.drawable.location_icon),
                 contentDescription = "Ubicación",
-                modifier = Modifier.size(24.dp)  // Tamaño ajustable
+                modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))  // Espaciado entre el ícono y el texto
             Text(text = location, fontSize = 14.sp, color = Color.Gray)
