@@ -75,7 +75,7 @@ fun FormularioScreen(modifier: Modifier = Modifier, navController: NavHostContro
     var edadError by remember { mutableStateOf("") }
     var documentoError by remember { mutableStateOf("") }
 
-    // Obtener el usuario actual
+    // Obtener el usuario actuall
     val user = FirebaseAuth.getInstance().currentUser
     val db = FirebaseFirestore.getInstance()
 
