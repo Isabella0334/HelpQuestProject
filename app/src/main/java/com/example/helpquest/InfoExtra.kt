@@ -95,6 +95,7 @@ fun InfoScreen(navController: NavHostController, idA: String?) {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
                     // Imagen de la actividad
                     Image(
@@ -131,11 +132,25 @@ fun InfoScreen(navController: NavHostController, idA: String?) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Mostrar el lugar en lugar de las coordenadas
-                    Text(
-                        text = "Ubicación: ${activity!!.lugar}",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Ubicación: ${activity!!.lugar}",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                        // Flecha presionable
+                        IconButton(onClick = { navController.navigate("Explore") }) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,  // Flecha hacia la derecha
+                                contentDescription = "Ir a ubicación",
+                                modifier = Modifier.size(24.dp),  // Tamaño ajustable
+                                tint = Color.Gray
+                            )
+                        }
+                    }
 
                     // Fecha y hora
                     val formattedDate = activity!!.fechahora.toDate().let { date ->
