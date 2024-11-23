@@ -80,9 +80,14 @@ fun ExploreScreen(navController: NavHostController) {
                 for (document in result) {
                     val geoPoint = document.getGeoPoint("coordenadas")
                     val descripcion = document.getString("descripcion")
+                    val fechahora = document.getTimestamp("fechahora") // Recuperar la fecha de la actividad
+                    val currentTime = System.currentTimeMillis()
 
-                    if (geoPoint != null && descripcion != null) {
-                        geoPoints.add(Pair(GeoPoint(geoPoint.latitude, geoPoint.longitude), descripcion))
+                    if (geoPoint != null && descripcion != null && fechahora != null) {
+                        val activityTime = fechahora.toDate().time // Convertir Timestamp a milisegundos
+                        if (activityTime >= currentTime) { // Comparar con la fecha actual
+                            geoPoints.add(Pair(GeoPoint(geoPoint.latitude, geoPoint.longitude), descripcion))
+                        }
                     }
                 }
             }

@@ -132,7 +132,7 @@ fun CustomCard(activity: VolunteerActivity, navController: NavHostController) {
                     Text(text = "Más información")
                 }
                 Button(
-                    onClick = { navController.navigate("Formulario") }, // Navegar a la pantalla "Formulario"
+                    onClick = { navController.navigate("Formulario/${activity.idA}") }, // Navegar a la pantalla "Formulario"
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))
                 ) {
                     Text(text = "Aplicar")
@@ -179,20 +179,20 @@ fun CustomBottomNavBar(navController: NavHostController) {
             }
         )
         BottomNavButton(
-            iconResId = R.drawable.ic_profile,
-            label = "Profile",
+            iconResId = R.drawable.ic_updates,
+            label = "Feed",
             onClick = {
-                navController.navigate("Perfil") {
+                navController.navigate("feed") {
                     launchSingleTop = true
                     popUpTo("feed") { inclusive = false }
                 }
             }
         )
         BottomNavButton(
-            iconResId = R.drawable.ic_updates,
-            label = "Feed",
+            iconResId = R.drawable.ic_profile,
+            label = "Profile",
             onClick = {
-                navController.navigate("feed") {
+                navController.navigate("Perfil") {
                     launchSingleTop = true
                     popUpTo("feed") { inclusive = false }
                 }
@@ -249,9 +249,12 @@ fun FeedScreen(navController: NavHostController) {
     }
 
     val filteredActivities = activities.filter { activity ->
-        activity.nombre.contains(searchQuery, ignoreCase = true) ||
-                activity.descripcion.contains(searchQuery, ignoreCase = true) ||
-                activity.tipo.any { it.contains(searchQuery, ignoreCase = true) }
+        val currentTime = System.currentTimeMillis() // Fecha y hora actual en milisegundos
+        val activityTime = activity.fechahora.toDate().time // Convierte Timestamp a milisegundos
+        (activityTime >= currentTime) && // Solo actividades futuras
+                (activity.nombre.contains(searchQuery, ignoreCase = true) ||
+                        activity.descripcion.contains(searchQuery, ignoreCase = true) ||
+                        activity.tipo.any { it.contains(searchQuery, ignoreCase = true) })
     }
 
     Scaffold(

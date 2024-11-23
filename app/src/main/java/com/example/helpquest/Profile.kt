@@ -50,6 +50,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 data class FutureActivity(
     val numActividad: String,
@@ -89,25 +90,74 @@ suspend fun getUserProfileFromFirestore(userId: String): UserProfile? {
 
 @Composable
 fun PantallaPerfil(navController: NavHostController) {
-    // Estados para los datos del usuario
+    // Estados para los datos del usuario y actividades
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(true) } // Indicador de carga
+    var futureActivities by remember { mutableStateOf<List<FutureActivity>>(emptyList()) }
+    var pastActivities by remember { mutableStateOf<List<PastActivity>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
 
     // Obtener el uid del usuario autenticado
     val currentUser = FirebaseAuth.getInstance().currentUser
     val userId = currentUser?.uid
 
-    // Llamada a Firestore para obtener los datos del usuario
+    // Llamada a Firestore para obtener los datos del usuario y actividades
     LaunchedEffect(userId) {
         if (userId != null) {
-            // Obtener datos del usuario desde Firestore
-            val userProfile = getUserProfileFromFirestore(userId)
-            if (userProfile != null) {
-                firstName = userProfile.nombres ?: ""
-                lastName = userProfile.apellidos ?: ""
+            isLoading = true
+            try {
+                // Obtener datos del usuario
+                val userDoc = FirebaseFirestore.getInstance()
+                    .collection("usuarios")
+                    .document(userId)
+                    .get()
+                    .await()
+
+                // Nombres del usuario
+                firstName = userDoc.getString("nombres") ?: ""
+                lastName = userDoc.getString("apellidos") ?: ""
+
+                // Array de actividades
+                val activityIds = userDoc.get("activities") as? List<String> ?: emptyList()
+
+                // Obtener actividades y separarlas por fecha
+                val activities = activityIds.mapNotNull { activityId ->
+                    val activityDoc = FirebaseFirestore.getInstance()
+                        .collection("activity")
+                        .document(activityId)
+                        .get()
+                        .await()
+
+                    if (activityDoc.exists()) {
+                        val nombre = activityDoc.getString("nombre") ?: "Sin nombre"
+                        val fechaHora = activityDoc.getTimestamp("fechahora")?.toDate()
+                        val lugar = activityDoc.getString("lugar") ?: "Ubicación desconocida"
+
+                        if (fechaHora != null) {
+                            if (fechaHora.after(Date())) {
+                                FutureActivity(
+                                    numActividad = nombre,
+                                    fechaActividad = fechaHora.toString().substring(0, 10), // Fecha
+                                    ubicacionActividad = lugar
+                                )
+                            } else {
+                                PastActivity(
+                                    numActividad = nombre,
+                                    fechaActividad = fechaHora.toString().substring(0, 10) // Fecha
+                                )
+                            }
+                        } else null
+                    } else null
+                }
+
+                // Separar actividades futuras y pasadas
+                futureActivities = activities.filterIsInstance<FutureActivity>()
+                pastActivities = activities.filterIsInstance<PastActivity>()
+            } catch (e: Exception) {
+                println("Error al obtener actividades: ${e.message}")
+            } finally {
+                isLoading = false
             }
-            isLoading = false // Termina la carga
         }
     }
 
@@ -121,7 +171,7 @@ fun PantallaPerfil(navController: NavHostController) {
             )
         } else {
             Scaffold(
-                bottomBar = { CustomBottomNavBar(navController = navController) } // Añadido el CustomBottomNavBar
+                bottomBar = { CustomBottomNavBar(navController = navController) }
             ) { paddingValues ->
                 Column(
                     modifier = Modifier
@@ -147,17 +197,17 @@ fun PantallaPerfil(navController: NavHostController) {
                         Column(modifier = Modifier.padding(40.dp)) {
                             // Mostrar los datos del usuario
                             Text(
-                                text = "$firstName $lastName", // Mostramos nombre completo
+                                text = "$firstName $lastName",
+                                color = Color(0xFF000000),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 25.sp
                             )
                         }
                     }
 
-                    // Agregar las tarjetas de actividades, logros, historial, etc.
-                    ProximasActivdadesCard()
-                    LogrosCard()
-                    HistorialCard()
+                    // Tarjetas para actividades futuras y pasadas
+                    ProximasActivdadesCard(futureActivities)
+                    HistorialCard(pastActivities)
                 }
             }
         }
@@ -166,8 +216,9 @@ fun PantallaPerfil(navController: NavHostController) {
 
 
 
+
 @Composable
-fun ProximasActivdadesCard(modifier: Modifier = Modifier) {
+fun ProximasActivdadesCard(futureActivities: List<FutureActivity>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -182,24 +233,23 @@ fun ProximasActivdadesCard(modifier: Modifier = Modifier) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Column(horizontalAlignment = Alignment.Start) {
-                    Text(
-                        text = stringResource(id = R.string.prox_actividades),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                }
+            Text(
+                text = "Próximas Actividades",
+                color = Color(0xFF000000),
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+
+            futureActivities.forEach { activity ->
+                ProxActividadCard(activity)
             }
-
-            ProximaActividadList()
-
         }
     }
 }
 
+
 @Composable
-fun LogrosCard(modifier: Modifier = Modifier) {
+fun HistorialCard(pastActivities: List<PastActivity>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -214,68 +264,20 @@ fun LogrosCard(modifier: Modifier = Modifier) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Column(horizontalAlignment = Alignment.Start) {
-                    Text(
-                        text = stringResource(id = R.string.logros),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.medalla),
-                    contentDescription = "medalla",
-                    modifier = Modifier.width(50.dp)
-                )
-                Image(
-                    painter = painterResource(R.drawable.trofeo),
-                    contentDescription = "trofeo",
-                    modifier = Modifier.width(50.dp)
-                )
-            }
+            Text(
+                text = "Historial de Actividades",
+                color = Color(0xFF000000),
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
 
+            pastActivities.forEach { activity ->
+                PastActivityCard(activity)
+            }
         }
     }
 }
 
-@Composable
-fun HistorialCard(modifier: Modifier = Modifier) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
-        border = BorderStroke(1.dp, Color.Gray)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Column(horizontalAlignment = Alignment.Start) {
-                    Text(
-                        text = stringResource(id = R.string.historial_actividades),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                }
-            }
-
-            PastActivityList()
-
-        }
-    }
-}
 
 @Composable
 fun ProxActividadCard(proxActividad: FutureActivity) {
@@ -284,13 +286,13 @@ fun ProxActividadCard(proxActividad: FutureActivity) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFD9D9D9))
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF5DC))
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = proxActividad.numActividad)
+            Text(text = proxActividad.numActividad, color = Color(0xFF000000))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -302,39 +304,25 @@ fun ProxActividadCard(proxActividad: FutureActivity) {
                     imageVector = Icons.Outlined.DateRange,
                     contentDescription = "Date"
                 )
-                Text(text = proxActividad.fechaActividad)
-                Spacer(modifier = Modifier.height(20.dp))
+                Text(text = proxActividad.fechaActividad, color = Color(0xFF000000))
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
                 Icon(
                     imageVector = Icons.Outlined.LocationOn,
                     contentDescription = "Location"
                 )
-                Text(text = proxActividad.ubicacionActividad)
+                Text(text = proxActividad.ubicacionActividad, color = Color(0xFF000000))
             }
         }
     }
 }
 
-@Composable
-fun ProximaActividadList() {
-    val proximasActividades = listOf(
-        FutureActivity(
-            numActividad = stringResource(id = R.string.prox_actividad1),
-            fechaActividad = stringResource(id = R.string.fecha_actividad),
-            ubicacionActividad = stringResource(id = R.string.ubicacion_actividad)
-        ),
-        FutureActivity(
-            numActividad = stringResource(id = R.string.prox_actividad2),
-            fechaActividad = stringResource(id = R.string.fecha_actividad),
-            ubicacionActividad = stringResource(id = R.string.ubicacion_actividad)
-        )
-    )
-
-    Column(modifier = Modifier) {
-        proximasActividades.forEach { proxActividad ->
-            ProxActividadCard(proxActividad = proxActividad)
-        }
-    }
-}
 
 @Composable
 fun PastActivityCard(pastActivity: PastActivity) {
@@ -343,13 +331,13 @@ fun PastActivityCard(pastActivity: PastActivity) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFD6EBC5))
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF5DC))
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = pastActivity.numActividad)
+            Text(text = pastActivity.numActividad, color = Color(0xFF000000))
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -360,32 +348,8 @@ fun PastActivityCard(pastActivity: PastActivity) {
                     imageVector = Icons.Outlined.DateRange,
                     contentDescription = "Date"
                 )
-                Text(text = pastActivity.fechaActividad)
+                Text(text = pastActivity.fechaActividad, color = Color(0xFF000000))
             }
-        }
-    }
-}
-
-@Composable
-fun PastActivityList() {
-    val actividadesPasadas = listOf(
-        PastActivity(
-            numActividad = stringResource(id = R.string.actividad_pasada1),
-            fechaActividad = stringResource(id = R.string.fecha_actividad)
-        ),
-        PastActivity(
-            numActividad = stringResource(id = R.string.actividad_pasada2),
-            fechaActividad = stringResource(id = R.string.fecha_actividad)
-        ),
-        PastActivity(
-            numActividad = stringResource(id = R.string.actividad_pasada3),
-            fechaActividad = stringResource(id = R.string.fecha_actividad)
-        )
-    )
-
-    Column(modifier = Modifier) {
-        actividadesPasadas.forEach { pastActivity ->
-            PastActivityCard(pastActivity = pastActivity)
         }
     }
 }
