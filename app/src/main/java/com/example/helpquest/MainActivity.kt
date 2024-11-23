@@ -27,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.helpquest.ui.theme.HelpQuestTheme
 import org.osmdroid.config.Configuration
 import android.app.Application
+import android.util.Log
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 
@@ -88,9 +89,20 @@ fun helpQuestNavegation(
                 val idA = backStackEntry.arguments?.getString("idA") // Recuperar idA del argumento
                 InfoScreen(navController = navController, idA = idA) // Pasar idA a InfoScreen
             }
-            composable(route = "Formulario") {
-                FormularioScreen(navController = navController)
+            composable(
+                route = "Formulario/{activityId}",
+                arguments = listOf(navArgument("activityId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val activityId = backStackEntry.arguments?.getString("activityId") ?: ""
+                if (activityId.isEmpty()) {
+                    Log.e("Formulario", "El activityId es nulo o vacío")
+                    return@composable
+                }
+
+                FormularioScreen(navController = navController, activityId = activityId)
             }
+
+
             composable(route = "Explore") {
                 ExploreScreen(navController = navController)
             }
